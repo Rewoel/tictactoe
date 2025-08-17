@@ -94,7 +94,7 @@
         <button id="signup-btn" class="w-full max-w-xs p-4 mb-6 bg-green-500 hover:bg-green-600 text-white text-xl font-bold rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 border-b-4 border-green-700 active:border-b-0 active:translate-y-1">
             Registrieren
         </button>
-        <div class="text-white mb-6">- ODER -</div>
+        <div class="text-white mb-6" id="auth-or-text">- ODER -</div>
         <button id="google-sign-in-btn" class="w-full max-w-xs p-4 bg-red-500 hover:bg-red-600 text-white text-xl font-bold rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 border-b-4 border-red-700 active:border-b-0 active:translate-y-1 flex items-center justify-center gap-2">
             <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12.0003 4.75C14.0003 4.75 15.5803 5.43 16.7303 6.54L19.2603 4.01C17.5803 2.33 15.0003 1.5 12.0003 1.5C8.30029 1.5 5.01029 3.51 3.32029 6.52L6.34029 8.87C7.14029 6.55 9.38029 4.75 12.0003 4.75V4.75ZM20.5303 12.00C20.5303 11.23 20.4603 10.45 20.3203 9.69H12.0003V14.31H16.9203C16.7203 15.39 16.0303 16.29 15.0603 16.93L17.9703 19.26C19.6403 17.58 20.5303 15.00 20.5303 12.00V12.00ZM6.34029 15.13L3.32029 17.48C5.01029 20.49 8.30029 22.5 12.0003 22.5C15.0003 22.5 17.5803 21.67 19.2603 19.99L16.7303 17.46C15.5803 18.57 14.0003 19.25 12.0003 19.25C9.38029 19.25 7.14029 17.45 6.34029 15.13Z" fill="#FFF"></path>
@@ -107,7 +107,7 @@
     <!-- Benutzernamensauswahl-Bildschirm -->
     <div id="username-screen" class="flex flex-col items-center justify-center p-8 bg-gray-700 rounded-lg shadow-lg hidden">
         <h1 class="text-4xl sm:text-5xl font-extrabold text-white mb-8 text-center" id="username-title">Wähle deinen Namen</h1>
-        <p class="text-center text-white mb-6">Bevor du spielst, gib bitte einen Namen ein:</p>
+        <p class="text-center text-white mb-6" id="username-prompt">Bevor du spielst, gib bitte einen Namen ein:</p>
         <input type="text" id="username-input" placeholder="Dein Name" class="w-full max-w-xs p-3 mb-4 rounded-lg bg-gray-600 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
         <button id="save-username-btn" class="w-full max-w-xs p-4 bg-blue-500 hover:bg-blue-600 text-white text-xl font-bold rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 border-b-4 border-blue-700 active:border-b-0 active:translate-y-1">
             Namen speichern
@@ -124,10 +124,34 @@
         <button id="player-vs-bot-btn" class="w-full max-w-xs p-4 mb-4 bg-blue-500 hover:bg-blue-600 text-white text-xl font-bold rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 border-b-4 border-blue-700 active:border-b-0 active:translate-y-1">
             Spieler vs. Bot
         </button>
+        <button id="player-vs-friend-btn" class="w-full max-w-xs p-4 mb-4 bg-purple-500 hover:bg-purple-600 text-white text-xl font-bold rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 border-b-4 border-purple-700 active:border-b-0 active:translate-y-1">
+            Spieler vs. Freund
+        </button>
         <button id="logout-btn" class="w-full max-w-xs p-4 bg-gray-600 hover:bg-gray-500 text-white text-xl font-bold rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 border-b-4 border-gray-800 active:border-b-0 active:translate-y-1">
             Abmelden
         </button>
     </div>
+
+    <!-- Multiplayer Lobby Bildschirm -->
+    <div id="multiplayer-lobby-screen" class="flex flex-col items-center justify-center p-8 bg-gray-700 rounded-lg shadow-lg hidden">
+        <h1 class="text-4xl sm:text-5xl font-extrabold text-white mb-8 text-center" id="multiplayer-lobby-title">Multiplayer Lobby</h1>
+        <p class="text-center text-white mb-4" id="your-code-text">Dein Freunde-Code:</p>
+        <div class="text-3xl font-bold text-yellow-300 mb-6 p-3 bg-gray-800 rounded-md w-full max-w-xs text-center" id="your-friend-code">LÄDT...</div>
+        
+        <input type="text" id="friend-code-input" placeholder="Freunde-Code eingeben" class="w-full max-w-xs p-3 mb-4 rounded-lg bg-gray-600 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500">
+        <button id="join-friend-game-btn" class="w-full max-w-xs p-4 mb-4 bg-purple-500 hover:bg-purple-600 text-white text-xl font-bold rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 border-b-4 border-purple-700 active:border-b-0 active:translate-y-1">
+            Spiel beitreten
+        </button>
+        <div class="text-white mb-6" id="or-create-game-text">- ODER -</div>
+        <button id="create-multiplayer-game-btn" class="w-full max-w-xs p-4 mb-6 bg-green-500 hover:bg-green-600 text-white text-xl font-bold rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 border-b-4 border-green-700 active:border-b-0 active:translate-y-1">
+            Neues Multiplayer-Spiel starten
+        </button>
+        <p id="multiplayer-lobby-message" class="text-center text-red-300 mt-4 text-sm hidden"></p>
+        <button id="back-from-lobby-btn" class="px-6 py-3 bg-gray-600 hover:bg-gray-500 text-white font-bold rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 border-b-4 border-gray-800 active:border-b-0 active:translate-y-1">
+            Zurück zum Menü
+        </button>
+    </div>
+
 
     <!-- Spielbereich -->
     <div id="game-area" class="flex-col items-center p-6 bg-gray-700 rounded-lg shadow-xl border-4 border-gray-900 hidden">
@@ -199,7 +223,14 @@
         window.userRankPoints = 0; // Initialisiere globale Rangpunkte
         window.userRankName = 'Bronze'; // Initialisiere globalen Rangnamen
         window.userDisplayName = null; // Um den gewählten Benutzernamen zu speichern
-        let currentScreen = 'auth'; // 'auth', 'username', 'mainMenu', 'game'
+        window.userFriendCode = null; // Der eindeutige Freundes-Code des Benutzers
+        let currentScreen = 'auth'; // 'auth', 'username', 'mainMenu', 'multiplayerLobby', 'game'
+
+        // Multiplayer-spezifische Variablen
+        let currentMultiplayerGameRef = null; // Firestore Doc Ref für das aktuelle MP-Spiel
+        let gameSessionUnsubscribe = null; // Funktion zum Beenden des onSnapshot Listeners
+        let isPlayerX = false; // Ist der aktuelle Spieler Spieler X in einem MP-Spiel?
+
 
         // Hilfsfunktion, um die Firebase Konfiguration zu laden.
         const getFirebaseConfig = () => {
@@ -218,6 +249,7 @@
                 gameTitle: "Tic Tac Toe",
                 playerVsPlayer: "Spieler vs. Spieler",
                 playerVsBot: "Spieler vs. Bot",
+                playerVsFriend: "Spieler vs. Freund", // Neu
                 newGame: "Neues Spiel",
                 backToMenu: "Zurück zum Menü",
                 currentPlayer: "Aktueller Spieler",
@@ -249,11 +281,25 @@
                 usernameError: "Fehler: ",
                 logoutBtn: "Abmelden",
                 loggedInAs: "Angemeldet als:",
+                multiplayerLobbyTitle: "Multiplayer Lobby", // Neu
+                yourCodeText: "Dein Freunde-Code:", // Neu
+                friendCodeInputPlaceholder: "Freunde-Code eingeben", // Neu
+                joinGameBtn: "Spiel beitreten", // Neu
+                orCreateGameText: "- ODER -", // Neu
+                createMultiplayerGameBtn: "Neues Multiplayer-Spiel starten", // Neu
+                lobbyMessageWaiting: "Warte auf Spieler O...", // Neu
+                lobbyMessageJoined: "Spiel beigetreten. Warte auf Start...", // Neu
+                lobbyMessageError: "Fehler in der Lobby: ", // Neu
+                gameAlreadyStarted: "Das Spiel hat bereits begonnen oder ist voll.", // Neu
+                gameNotFound: "Spiel nicht gefunden oder Code ungültig.", // Neu
+                gameJoinedSuccess: "Spiel erfolgreich beigetreten!", // Neu
+                gameCreatedSuccess: "Multiplayer-Spiel erstellt! Teile deinen Code.", // Neu
             },
             en: {
                 gameTitle: "Tic Tac Toe",
                 playerVsPlayer: "Player vs. Player",
                 playerVsBot: "Player vs. Bot",
+                playerVsFriend: "Player vs. Friend", // New
                 newGame: "New Game",
                 backToMenu: "Back to Menu",
                 currentPlayer: "Current Player",
@@ -285,6 +331,19 @@
                 usernameError: "Error: ",
                 logoutBtn: "Log Out",
                 loggedInAs: "Logged in as:",
+                multiplayerLobbyTitle: "Multiplayer Lobby", // New
+                yourCodeText: "Your Friend Code:", // New
+                friendCodeInputPlaceholder: "Enter Friend Code", // New
+                joinGameBtn: "Join Game", // New
+                orCreateGameText: "- OR -", // New
+                createMultiplayerGameBtn: "Start New Multiplayer Game", // New
+                lobbyMessageWaiting: "Waiting for Player O...", // New
+                lobbyMessageJoined: "Game joined. Waiting for start...", // New
+                lobbyMessageError: "Lobby Error: ", // New
+                gameAlreadyStarted: "Game has already started or is full.", // New
+                gameNotFound: "Game not found or invalid code.", // New
+                gameJoinedSuccess: "Game joined successfully!", // New
+                gameCreatedSuccess: "Multiplayer game created! Share your code.", // New
             },
         };
 
@@ -294,7 +353,8 @@
         let winner = null;
         let winningLine = null;
         let isBotTurn = false;
-        let gameMode = 'mainMenu'; // 'mainMenu', 'playerVsPlayer', 'playerVsBot'
+        let gameMode = 'mainMenu'; // 'mainMenu', 'playerVsPlayer', 'playerVsBot', 'playerVsFriend'
+        
         let language = 'de'; // Default language
 
         // Particle animation variables
@@ -304,15 +364,16 @@
         let ctx = null;
 
         // Dom Elements (declared here, assigned in DOMContentLoaded)
-        let mainMenuDiv, gameAreaDiv, boardContainerDiv, playerVsPlayerBtn, playerVsBotBtn,
+        let mainMenuDiv, gameAreaDiv, boardContainerDiv, playerVsPlayerBtn, playerVsBotBtn, playerVsFriendBtn,
             newGameBtn, backToMenuBtn, currentPlayerText, botThinkingText,
             languageToggleBtn, currentLanguageDisplay, gameTitleDisplay,
             rankInfoDisplay, userIdDisplay, winningLineOverlay, winRingOverlay,
             rankProgressOverlay, rankOverlayTitle, prevRankText, newRankText, animatedPointsDisplay,
-            authScreenDiv, emailInput, passwordInput, loginBtn, signupBtn, googleSignInBtn, authMessageDisplay,
+            authScreenDiv, emailInput, passwordInput, loginBtn, signupBtn, googleSignInBtn, authMessageDisplay, authOrText,
             usernameScreenDiv, usernameInput, saveUsernameBtn, usernameMessageDisplay,
             authTitleDisplay, usernameTitleDisplay, usernamePromptDisplay, logoutBtn,
-            profileDisplay, usernameInProfile, rankNameInProfile, rankProgressBarFill, rankPointsInProfile; // New Profile Display elements
+            profileDisplay, usernameInProfile, rankNameInProfile, rankProgressBarFill, rankPointsInProfile,
+            multiplayerLobbyScreen, multiplayerLobbyTitle, yourCodeText, yourFriendCodeDisplay, friendCodeInput, joinFriendGameBtn, orCreateGameText, createMultiplayerGameBtn, multiplayerLobbyMessage, backFromLobbyBtn;
 
         // --- Utility Functions ---
         // Get current translation object
@@ -362,6 +423,7 @@
             if (gameTitleDisplay) gameTitleDisplay.textContent = t().gameTitle;
             if (playerVsPlayerBtn) playerVsPlayerBtn.textContent = t().playerVsPlayer;
             if (playerVsBotBtn) playerVsBotBtn.textContent = t().playerVsBot;
+            if (playerVsFriendBtn) playerVsFriendBtn.textContent = t().playerVsFriend;
             if (newGameBtn) newGameBtn.textContent = t().newGame;
             if (backToMenuBtn) backToMenuBtn.textContent = t().backToMenu;
             if (logoutBtn) logoutBtn.textContent = t().logoutBtn;
@@ -384,6 +446,7 @@
             if (passwordInput) passwordInput.placeholder = t().passwordPlaceholder;
             if (loginBtn) loginBtn.textContent = t().loginBtn;
             if (signupBtn) signupBtn.textContent = t().signupBtn;
+            if (authOrText) authOrText.textContent = t().or;
             if (googleSignInBtn) googleSignInBtn.innerHTML = `<svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12.0003 4.75C14.0003 4.75 15.5803 5.43 16.7303 6.54L19.2603 4.01C17.5803 2.33 15.0003 1.5 12.0003 1.5C8.30029 1.5 5.01029 3.51 3.32029 6.52L6.34029 8.87C7.14029 6.55 9.38029 4.75 12.0003 4.75V4.75ZM20.5303 12.00C20.5303 11.23 20.4603 10.45 20.3203 9.69H12.0003V14.31H16.9203C16.7203 15.39 16.0303 16.29 15.0603 16.93L17.9703 19.26C19.6403 17.58 20.5303 15.00 20.5303 12.00V12.00ZM6.34029 15.13L3.32029 17.48C5.01029 20.49 8.30029 22.5 12.0003 22.5C15.0003 22.5 17.5803 21.67 19.2603 19.99L16.7303 17.46C15.5803 18.57 14.0003 19.25 12.0003 19.25C9.38029 19.25 7.14029 17.45 6.34029 15.13Z" fill="#FFF"></path></svg> ${t().googleSignIn}`;
             
             // Username Screen
@@ -391,6 +454,17 @@
             if (usernamePromptDisplay) usernamePromptDisplay.textContent = t().usernamePrompt;
             if (usernameInput) usernameInput.placeholder = t().usernamePlaceholder;
             if (saveUsernameBtn) saveUsernameBtn.textContent = t().saveUsernameBtn;
+
+            // Multiplayer Lobby Screen
+            if (multiplayerLobbyTitle) multiplayerLobbyTitle.textContent = t().multiplayerLobbyTitle;
+            if (yourCodeText) yourCodeText.textContent = t().yourCodeText;
+            if (yourFriendCodeDisplay) yourFriendCodeDisplay.textContent = window.userFriendCode || 'LÄDT...';
+            if (friendCodeInput) friendCodeInput.placeholder = t().friendCodeInputPlaceholder;
+            if (joinFriendGameBtn) joinFriendGameBtn.textContent = t().joinGameBtn;
+            if (orCreateGameText) orCreateGameText.textContent = t().orCreateGameText;
+            if (createMultiplayerGameBtn) createMultiplayerGameBtn.textContent = t().createMultiplayerGameBtn;
+            if (backFromLobbyBtn) backFromLobbyBtn.textContent = t().backToMenu;
+
 
             updateStatusDisplay(); // Also update status display with new language
         }
@@ -415,14 +489,13 @@
             if (window.isFirebaseReady && rankInfoDisplay && userIdDisplay) {
                 rankInfoDisplay.innerHTML = `${t().yourRank}: ${window.userRankName} (${window.userRankPoints} ${t().points})`;
                 userIdDisplay.textContent = `User ID: ${window.currentUserId || 'N/A'}`;
-                if (window.userDisplayName) {
-                    const usernameDisplayElement = document.getElementById('username-display');
-                    if(usernameDisplayElement) usernameDisplayElement.textContent = `${t().loggedInAs} ${window.userDisplayName}`;
+                const usernameDisplayElement = document.getElementById('username-display');
+                if (usernameDisplayElement) {
+                    usernameDisplayElement.textContent = `${t().loggedInAs} ${window.userDisplayName || 'Gast'}`;
                 }
                 rankInfoDisplay.style.display = 'block';
                 userIdDisplay.style.display = 'block';
-                const usernameDisplayElement = document.getElementById('username-display');
-                if(usernameDisplayElement) usernameDisplayElement.style.display = 'block';
+                if (usernameDisplayElement) usernameDisplayElement.style.display = 'block';
 
             } else if (rankInfoDisplay) {
                 rankInfoDisplay.textContent = t().loadingRank;
@@ -481,12 +554,27 @@
             }
         }
 
+        function showMultiplayerLobbyMessage(message, isError = true) {
+            if (multiplayerLobbyMessage) {
+                multiplayerLobbyMessage.textContent = (isError ? t().lobbyMessageError : '') + message;
+                multiplayerLobbyMessage.classList.remove('hidden');
+                multiplayerLobbyMessage.classList.toggle('text-red-300', isError);
+                multiplayerLobbyMessage.classList.toggle('text-green-300', !isError);
+            }
+        }
+
+        function hideMultiplayerLobbyMessage() {
+            if (multiplayerLobbyMessage) {
+                multiplayerLobbyMessage.classList.add('hidden');
+            }
+        }
 
         function renderScreen(screenName) {
             mainMenuDiv.classList.add('hidden');
             gameAreaDiv.classList.add('hidden');
             authScreenDiv.classList.add('hidden');
             usernameScreenDiv.classList.add('hidden');
+            multiplayerLobbyScreen.classList.add('hidden'); // New screen
             if (profileDisplay) profileDisplay.classList.add('hidden'); // Hide profile by default
 
             switch (screenName) {
@@ -498,6 +586,10 @@
                     break;
                 case 'mainMenu':
                     mainMenuDiv.classList.remove('hidden');
+                    if (profileDisplay && window.isFirebaseReady && window.userDisplayName) profileDisplay.classList.remove('hidden');
+                    break;
+                case 'multiplayerLobby': // New case
+                    multiplayerLobbyScreen.classList.remove('hidden');
                     if (profileDisplay && window.isFirebaseReady && window.userDisplayName) profileDisplay.classList.remove('hidden');
                     break;
                 case 'game':
@@ -522,13 +614,14 @@
                         window.currentUserId = user.uid;
                         window.isFirebaseReady = true;
                         console.log("Firebase: User authenticated:", user.uid);
-                        // Check for user's display name
+                        // Check for user's display name and friend code
                         await checkUserDisplayName(user.uid);
                         window.subscribeToRankChanges(); // Subscribe only after user and name are checked
                     } else {
                         window.currentUserId = null;
                         window.isFirebaseReady = false;
                         window.userDisplayName = null; // Clear display name on logout
+                        window.userFriendCode = null; // Clear friend code on logout
                         console.log("Firebase: User signed out or not authenticated.");
                         renderScreen('auth'); // Go to auth screen if not authenticated
                     }
@@ -541,6 +634,14 @@
             }
         };
 
+        async function generateFriendCode() {
+            // Simple deterministic code for demo based on user ID
+            if (window.currentUserId) {
+                return window.currentUserId.substring(0, 6).toUpperCase();
+            }
+            return null;
+        }
+
         async function checkUserDisplayName(uid) {
             if (!window.firebaseDb) return;
             const profileDocRef = doc(window.firebaseDb, `artifacts/${getAppId()}/users/${uid}/profile`, 'userProfile');
@@ -548,10 +649,15 @@
                 const docSnap = await getDoc(profileDocRef);
                 if (docSnap.exists() && docSnap.data().displayName) {
                     window.userDisplayName = docSnap.data().displayName;
-                    console.log("User Display Name:", window.userDisplayName);
+                    window.userFriendCode = docSnap.data().friendCode || await generateFriendCode(); // Get existing or generate
+                    if (!docSnap.data().friendCode) { // If code was just generated, save it
+                        await setDoc(profileDocRef, { friendCode: window.userFriendCode }, { merge: true });
+                    }
+                    console.log("User Display Name:", window.userDisplayName, "Friend Code:", window.userFriendCode);
                     renderScreen('mainMenu'); // Go to main menu if name exists
                 } else {
                     window.userDisplayName = null;
+                    window.userFriendCode = null;
                     renderScreen('username'); // Go to username screen if no name
                 }
             } catch (error) {
@@ -698,11 +804,48 @@
             return { winner: null, line: null };
         }
 
-        function handleSquareClick(i) {
+        async function handleSquareClick(i) {
             if (winner || board[i] || (gameMode === 'playerVsBot' && isBotTurn)) {
                 return;
             }
 
+            if (gameMode === 'playerVsFriend') {
+                if (!currentMultiplayerGameRef || !window.currentUserId) {
+                    showMultiplayerLobbyMessage("Fehler: Kein Multiplayer-Spiel aktiv.", true);
+                    return;
+                }
+                // Only allow moves if it's your turn
+                if ((isPlayerX && currentPlayer === 'X') || (!isPlayerX && currentPlayer === 'O')) {
+                    const newBoard = [...board];
+                    newBoard[i] = currentPlayer;
+
+                    const { winner: potentialWinner, line: winningLineFound } = calculateWinner(newBoard);
+                    let newGameStatus = 'playing';
+                    let gameOutcome = null;
+
+                    if (potentialWinner) {
+                        newGameStatus = 'finished';
+                        gameOutcome = potentialWinner;
+                    } else if (newBoard.every(square => square !== null)) {
+                        newGameStatus = 'finished';
+                        gameOutcome = 'Unentschieden';
+                    }
+
+                    await updateGameSession({
+                        board: newBoard,
+                        currentPlayer: currentPlayer === 'X' ? 'O' : 'X',
+                        winner: gameOutcome,
+                        winningLine: winningLineFound,
+                        status: newGameStatus
+                    });
+                } else {
+                    // It's not your turn
+                    showMultiplayerLobbyMessage("Warte auf den Zug des anderen Spielers.", false);
+                }
+                return; // Exit as logic is handled by Firestore listener
+            }
+
+            // --- Local Game Logic (Player vs Player / Player vs Bot) ---
             board[i] = currentPlayer;
             
             const { winner: potentialWinner, line: winningLineFound } = calculateWinner(board);
@@ -841,6 +984,12 @@
             winningLine = null;
             isBotTurn = false;
             if (botThinkingText) botThinkingText.classList.add('hidden');
+            if (gameSessionUnsubscribe) { // Unsubscribe from multiplayer game if active
+                gameSessionUnsubscribe();
+                gameSessionUnsubscribe = null;
+            }
+            currentMultiplayerGameRef = null;
+            isPlayerX = false;
             renderBoard();
             updateStatusDisplay();
             if (winRingOverlay) winRingOverlay.classList.add('hidden'); // Ensure ring is hidden
@@ -1061,10 +1210,17 @@
                 return;
             }
 
+            const friendCode = await generateFriendCode();
+            if (!friendCode) {
+                showUsernameMessage("Fehler beim Generieren des Freundes-Codes.");
+                return;
+            }
+
             const profileDocRef = doc(window.firebaseDb, `artifacts/${getAppId()}/users/${window.currentUserId}/profile`, 'userProfile');
             try {
-                await setDoc(profileDocRef, { displayName: displayName }, { merge: true });
+                await setDoc(profileDocRef, { displayName: displayName, friendCode: friendCode }, { merge: true });
                 window.userDisplayName = displayName;
+                window.userFriendCode = friendCode;
                 renderScreen('mainMenu'); // Go to main menu after saving name
             } catch (error) {
                 showUsernameMessage("Fehler beim Speichern des Namens: " + error.message);
@@ -1077,10 +1233,342 @@
                 // onAuthStateChanged will automatically redirect to auth screen
                 window.userRankPoints = 0; // Reset rank on logout
                 window.userRankName = 'Bronze';
+                window.userFriendCode = null; // Clear friend code on logout
                 updateStatusDisplay();
             } catch (error) {
                 console.error("Error signing out:", error);
             }
+        }
+
+        // --- Multiplayer Logic ---
+        async function createMultiplayerGame() {
+            hideMultiplayerLobbyMessage();
+            if (!window.userFriendCode || !window.userDisplayName) {
+                showMultiplayerLobbyMessage("Dein Freundes-Code oder Name ist nicht verfügbar. Bitte melde dich erneut an.", true);
+                return;
+            }
+
+            try {
+                const gameRef = doc(window.firebaseDb, `artifacts/${getAppId()}/games`, window.userFriendCode);
+                const gameDoc = await getDoc(gameRef);
+
+                if (gameDoc.exists()) {
+                    showMultiplayerLobbyMessage("Ein Spiel mit diesem Code existiert bereits. Bitte wähle 'Beitreten' oder starte ein anderes Spiel.", true);
+                    return;
+                }
+
+                const initialGameState = {
+                    players: {
+                        X: {
+                            uid: window.currentUserId,
+                            displayName: window.userDisplayName,
+                            friendCode: window.userFriendCode
+                        },
+                        O: null // Player O is waiting
+                    },
+                    board: Array(9).fill(null),
+                    currentPlayer: 'X',
+                    winner: null,
+                    winningLine: null,
+                    status: 'waiting', // 'waiting', 'playing', 'finished'
+                    createdAt: Date.now()
+                };
+
+                await setDoc(gameRef, initialGameState);
+                currentMultiplayerGameRef = gameRef;
+                isPlayerX = true;
+                showMultiplayerLobbyMessage(t().gameCreatedSuccess, false);
+                subscribeToGameSession(window.userFriendCode);
+
+            } catch (error) {
+                console.error("Error creating multiplayer game:", error);
+                showMultiplayerLobbyMessage("Fehler beim Erstellen des Spiels: " + error.message, true);
+            }
+        }
+
+        async function joinMultiplayerGame() {
+            hideMultiplayerLobbyMessage();
+            const friendCodeToJoin = friendCodeInput.value.trim().toUpperCase();
+            if (!friendCodeToJoin) {
+                showMultiplayerLobbyMessage("Bitte gib einen Freunde-Code ein.", true);
+                return;
+            }
+            if (!window.userFriendCode || !window.userDisplayName) {
+                showMultiplayerLobbyMessage("Dein Freundes-Code oder Name ist nicht verfügbar. Bitte melde dich erneut an.", true);
+                return;
+            }
+            if (friendCodeToJoin === window.userFriendCode) {
+                 showMultiplayerLobbyMessage("Du kannst keinem Spiel mit deinem eigenen Freundes-Code beitreten.", true);
+                 return;
+            }
+
+
+            try {
+                const gameRef = doc(window.firebaseDb, `artifacts/${getAppId()}/games`, friendCodeToJoin);
+                const gameDoc = await getDoc(gameRef);
+
+                if (!gameDoc.exists() || gameDoc.data().status === 'finished') {
+                    showMultiplayerLobbyMessage(t().gameNotFound, true);
+                    return;
+                }
+
+                const gameData = gameDoc.data();
+                if (gameData.players.O !== null) {
+                    showMultiplayerLobbyMessage(t().gameAlreadyStarted, true);
+                    return;
+                }
+
+                // Update game with Player O's info
+                await updateDoc(gameRef, {
+                    'players.O': {
+                        uid: window.currentUserId,
+                        displayName: window.userDisplayName,
+                        friendCode: window.userFriendCode
+                    },
+                    status: 'playing' // Start the game
+                });
+
+                currentMultiplayerGameRef = gameRef;
+                isPlayerX = false; // Current player is O
+                showMultiplayerLobbyMessage(t().gameJoinedSuccess, false);
+                subscribeToGameSession(friendCodeToJoin);
+
+            } catch (error) {
+                console.error("Error joining multiplayer game:", error);
+                showMultiplayerLobbyMessage("Fehler beim Beitreten des Spiels: " + error.message, true);
+            }
+        }
+
+        function subscribeToGameSession(gameId) {
+            if (gameSessionUnsubscribe) { // Unsubscribe from previous game session if any
+                gameSessionUnsubscribe();
+            }
+
+            currentMultiplayerGameRef = doc(window.firebaseDb, `artifacts/${getAppId()}/games`, gameId);
+            gameSessionUnsubscribe = onSnapshot(currentMultiplayerGameRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    board = data.board;
+                    currentPlayer = data.currentPlayer;
+                    winner = data.winner;
+                    winningLine = data.winningLine;
+                    gameMode = 'playerVsFriend'; // Ensure game mode is correct
+                    
+                    // Automatically transition to game screen if not already there and game is playing
+                    if (data.status === 'playing' && currentScreen !== 'game') {
+                        renderScreen('game');
+                        resetGameLocalState(); // Reset only local state, not the Firestore game
+                    } else if (data.status === 'waiting' && currentScreen !== 'multiplayerLobby') {
+                        renderScreen('multiplayerLobby');
+                    } else if (data.status === 'finished') {
+                        // Game ended, can show a message or transition back
+                    }
+
+                    renderBoard();
+                    updateStatusDisplay();
+                } else {
+                    console.log("Multiplayer game ended or not found (document deleted).");
+                    resetGame(); // Reset game state
+                    backToMainMenu(); // Go back to main menu
+                    showMultiplayerLobbyMessage("Das Multiplayer-Spiel wurde beendet.", true);
+                }
+            }, (error) => {
+                console.error("Error listening to game session:", error);
+                showMultiplayerLobbyMessage("Verbindungsproblem mit dem Spiel: " + error.message, true);
+                resetGame();
+                backToMainMenu();
+            });
+        }
+
+        async function updateGameSession(updates) {
+            if (currentMultiplayerGameRef) {
+                try {
+                    await updateDoc(currentMultiplayerGameRef, updates);
+                } catch (error) {
+                    console.error("Error updating game session:", error);
+                    showMultiplayerLobbyMessage("Fehler beim Aktualisieren des Spiels: " + error.message, true);
+                }
+            }
+        }
+
+        // Resets local game state, not the Firestore document
+        const resetGameLocalState = () => {
+            board = Array(9).fill(null);
+            currentPlayer = 'X';
+            winner = null;
+            winningLine = null;
+            isBotTurn = false;
+            if (botThinkingText) botThinkingText.classList.add('hidden');
+            if (winRingOverlay) winRingOverlay.classList.add('hidden');
+        };
+
+        const resetGame = () => {
+            resetGameLocalState(); // Reset local state
+            if (gameSessionUnsubscribe) { // Unsubscribe from multiplayer game if active
+                gameSessionUnsubscribe();
+                gameSessionUnsubscribe = null;
+            }
+            currentMultiplayerGameRef = null;
+            isPlayerX = false;
+            renderBoard();
+            updateStatusDisplay();
+        };
+
+        const backToMainMenu = () => {
+            resetGame(); // Reset any active game (local or multiplayer)
+            renderScreen('mainMenu');
+        };
+
+        // --- Animation Functions ---
+        function drawWinningLine() {
+            if (!winningLine || !boardContainerDiv || !winningLineOverlay) {
+                if (winningLineOverlay) winningLineOverlay.style.opacity = '0';
+                return;
+            }
+
+            const lineThickness = 8; // in Pixeln
+            const boardPaddingPx = 16; // 1rem = 16px (for p-4)
+
+            const boardRect = boardContainerDiv.getBoundingClientRect();
+            const effectiveGridWidth = boardRect.width - (2 * boardPaddingPx);
+            const effectiveGridHeight = boardRect.height - (2 * boardPaddingPx);
+
+            const cellWidth = effectiveGridWidth / 3;
+            const cellHeight = effectiveGridHeight / 3;
+
+            const getSquareCenter = (squareIndex) => {
+                const row = Math.floor(squareIndex / 3);
+                const col = squareIndex % 3;
+                const centerX = boardPaddingPx + col * cellWidth + cellWidth / 2;
+                const centerY = boardPaddingPx + row * cellHeight + cellHeight / 2;
+                return { x: centerX, y: centerY };
+            };
+
+            const startCellIndex = winningLine[0];
+            const endCellIndex = winningLine[2]; 
+
+            const startCenter = getSquareCenter(startCellIndex);
+            const endCenter = getSquareCenter(endCellIndex);
+
+            const dx = endCenter.x - startCenter.x;
+            const dy = endCenter.y - startCenter.y;
+
+            const lineLength = Math.sqrt(dx * dx + dy * dy);
+            const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+            const midX = (startCenter.x + endCenter.x) / 2;
+            const midY = (startCenter.y + endCenter.y) / 2;
+
+            winningLineOverlay.style.cssText = `
+                background-color: rgb(34, 197, 94);
+                border-radius: 9999px;
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+                position: absolute;
+                z-index: 10;
+                transition: opacity 0.5s ease-out;
+                opacity: 1; /* Make visible for animation */
+                width: ${lineLength}px;
+                height: ${lineThickness}px;
+                left: ${midX - lineLength / 2}px;
+                top: ${midY - lineThickness / 2}px;
+                transform-origin: center center;
+                transform: rotate(${angle}deg);
+            `;
+
+            // Particle animation
+            startParticleAnimation();
+        }
+
+        let particlesAnimationFrameId = null;
+        let particleArray = [];
+
+        function startParticleAnimation() {
+            if (particlesAnimationFrameId) cancelAnimationFrame(particlesAnimationFrameId); // Stop existing animation
+
+            if (!canvas || !ctx || !boardContainerDiv || !winningLine) {
+                console.warn("Cannot start particle animation: Missing required elements or winningLine.");
+                return;
+            }
+
+            const boardRect = boardContainerDiv.getBoundingClientRect();
+            canvas.width = boardRect.width;
+            canvas.height = boardRect.height;
+
+            particleArray = []; // Clear previous particles
+            const boardPaddingPx = 16;
+            const effectiveGridWidth = boardRect.width - (2 * boardPaddingPx);
+            const effectiveGridHeight = boardRect.height - (2 * boardPaddingPx);
+            const cellWidth = effectiveGridWidth / 3;
+            const cellHeight = effectiveGridHeight / 3;
+
+            winningLine.forEach(squareIndex => {
+                const row = Math.floor(squareIndex / 3);
+                const col = squareIndex % 3;
+                const centerX = boardPaddingPx + col * cellWidth + cellWidth / 2;
+                const centerY = boardPaddingPx + row * cellHeight + cellHeight / 2;
+
+                for (let i = 0; i < 15; i++) {
+                    particleArray.push({ // Using particleArray here, consistent with declaration
+                        x: centerX,
+                        y: centerY,
+                        vx: (Math.random() - 0.5) * 4,
+                        vy: (Math.random() - 0.5) * 4,
+                        life: 0,
+                        maxLife: 60 + Math.random() * 30,
+                        radius: 2 + Math.random() * 2,
+                        color: '0, 255, 0'
+                    });
+                }
+            });
+
+            const animateParticles = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                for (let i = 0; i < particleArray.length; i++) { // Using particleArray here
+                    const p = particleArray[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.life++;
+
+                    const alpha = 1 - (p.life / p.maxLife);
+                    const currentRadius = p.radius * Math.max(0.01, alpha);
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, currentRadius, 0, Math.PI * 2, false);
+                    ctx.fillStyle = `rgba(${p.color}, ${alpha})`;
+                    ctx.fill();
+
+                    if (p.life >= p.maxLife) {
+                        particleArray.splice(i, 1);
+                        i--;
+                    }
+                }
+                if (particleArray.length > 0) { // Check 'particleArray' length
+                    animationFrameId = requestAnimationFrame(animateParticles);
+                } else {
+                    animationFrameId = null; // Animation finished
+                }
+            };
+            animationFrameId = requestAnimationFrame(animateParticles); // Use general animationFrameId
+        }
+
+        let winRingAnimationTimeout = null;
+        function triggerWinRingAnimation() {
+            if (!winRingOverlay) {
+                console.warn("winRingOverlay element not found. Cannot trigger win ring animation.");
+                return;
+            }
+            // Clear any existing animation before starting a new one
+            if (winRingAnimationTimeout) clearTimeout(winRingAnimationTimeout);
+            
+            winRingOverlay.classList.remove('hidden');
+            // Remove and re-add the class to re-trigger the animation
+            winRingOverlay.classList.remove('win-ring');
+            void winRingOverlay.offsetWidth; // Trigger reflow to restart animation
+            winRingOverlay.classList.add('win-ring');
+
+            winRingAnimationTimeout = setTimeout(() => {
+                winRingOverlay.classList.add('hidden');
+            }, 1000); // Duration of the animation
         }
 
 
@@ -1108,8 +1596,20 @@
                 squareBtn.dataset.index = i; // Store index for click handler
                 squareBtn.textContent = board[i];
 
-                // Disable logic based on current game state
-                if (winner || board[i] !== null || (gameMode === 'playerVsBot' && isBotTurn)) {
+                // Disable logic based on current game state and game mode
+                let disableButton = false;
+                if (winner || board[i] !== null) {
+                    disableButton = true;
+                } else if (gameMode === 'playerVsBot' && isBotTurn) {
+                    disableButton = true;
+                } else if (gameMode === 'playerVsFriend') {
+                    // In multiplayer, disable if it's not our turn
+                    if ((isPlayerX && currentPlayer === 'O') || (!isPlayerX && currentPlayer === 'X')) {
+                        disableButton = true;
+                    }
+                }
+
+                if (disableButton) {
                     squareBtn.disabled = true;
                     squareBtn.classList.add('opacity-50', 'cursor-not-allowed');
                 } else {
@@ -1137,6 +1637,7 @@
             boardContainerDiv = document.getElementById('game-board-container');
             playerVsPlayerBtn = document.getElementById('player-vs-player-btn');
             playerVsBotBtn = document.getElementById('player-vs-bot-btn');
+            playerVsFriendBtn = document.getElementById('player-vs-friend-btn'); // New
             newGameBtn = document.getElementById('new-game-btn');
             backToMenuBtn = document.getElementById('back-to-menu-btn');
             currentPlayerText = document.getElementById('current-player-text');
@@ -1162,6 +1663,7 @@
             signupBtn = document.getElementById('signup-btn');
             googleSignInBtn = document.getElementById('google-sign-in-btn');
             authMessageDisplay = document.getElementById('auth-message');
+            authOrText = document.getElementById('auth-or-text'); // New
             usernameScreenDiv = document.getElementById('username-screen');
             usernameInput = document.getElementById('username-input');
             saveUsernameBtn = document.getElementById('save-username-btn');
@@ -1177,6 +1679,18 @@
             rankNameInProfile = document.getElementById('rank-name-in-profile');
             rankProgressBarFill = document.getElementById('rank-progress-bar-fill');
             rankPointsInProfile = document.getElementById('rank-points-in-profile');
+
+            // Multiplayer Lobby elements
+            multiplayerLobbyScreen = document.getElementById('multiplayer-lobby-screen');
+            multiplayerLobbyTitle = document.getElementById('multiplayer-lobby-title');
+            yourCodeText = document.getElementById('your-code-text');
+            yourFriendCodeDisplay = document.getElementById('your-friend-code');
+            friendCodeInput = document.getElementById('friend-code-input');
+            joinFriendGameBtn = document.getElementById('join-friend-game-btn');
+            orCreateGameText = document.getElementById('or-create-game-text');
+            createMultiplayerGameBtn = document.getElementById('create-multiplayer-game-btn');
+            multiplayerLobbyMessage = document.getElementById('multiplayer-lobby-message');
+            backFromLobbyBtn = document.getElementById('back-from-lobby-btn');
 
 
             canvas = document.getElementById('particles-canvas');
@@ -1201,6 +1715,14 @@
                 });
             }
 
+            if (playerVsFriendBtn) { // New event listener for Player vs Friend
+                playerVsFriendBtn.addEventListener('click', () => {
+                    gameMode = 'playerVsFriend'; // Set game mode
+                    renderScreen('multiplayerLobby'); // Go to multiplayer lobby
+                    hideMultiplayerLobbyMessage();
+                });
+            }
+
             if (newGameBtn) newGameBtn.addEventListener('click', resetGame);
             if (backToMenuBtn) backToMenuBtn.addEventListener('click', backToMainMenu);
             if (languageToggleBtn) {
@@ -1220,6 +1742,11 @@
 
             // Logout Button Event Listener
             if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
+
+            // Multiplayer Lobby Event Listeners
+            if (createMultiplayerGameBtn) createMultiplayerGameBtn.addEventListener('click', createMultiplayerGame);
+            if (joinFriendGameBtn) joinFriendGameBtn.addEventListener('click', joinMultiplayerGame);
+            if (backFromLobbyBtn) backFromLobbyBtn.addEventListener('click', backToMainMenu);
 
             // --- End of Event Listeners ---
 
