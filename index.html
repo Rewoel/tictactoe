@@ -1,1 +1,874 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro Tic Tac Toe</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        /* CSS für die Rang-Animation */
+        @keyframes rank-pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); color: #a7f3d0; /* Tailwind green-200 */ }
+            100% { transform: scale(1); }
+        }
+        .animate-rank-pop {
+            animation: rank-pop 0.5s ease-out;
+        }
+
+        /* CSS für die Gewinn-Ring-Animation */
+        @keyframes win-ring-expand {
+            0% {
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 1;
+                border-width: 8px; /* Start thick */
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0;
+                border-width: 0px; /* End thin/invisible */
+            }
+        }
+        .win-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border-radius: 50%;
+            border: 8px solid rgba(255, 255, 0, 0.8); /* Gelb oder helle Farbe für Effekt */
+            animation: win-ring-expand 1s ease-out forwards; /* 1 Sekunde Dauer, bleibt am Endzustand */
+            z-index: 15; /* Höher als Gewinnlinie und Partikel */
+            pointer-events: none; /* Blockiert keine Klicks */
+        }
+        
+        /* CSS für das Rangfortschritts-Overlay */
+        @keyframes rank-overlay-enter {
+          0% { transform: scale(0.5); opacity: 0; }
+          70% { transform: scale(1.05); opacity: 1; }
+          100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-rank-overlay-enter {
+          animation: rank-overlay-enter 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+        }
+
+        @keyframes overlay-fade-in {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        .animate-overlay-fade-in {
+          animation: overlay-fade-in 0.3s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center bg-gray-800 p-4 font-mono relative">
+    <!-- Sprachauswahl-Button -->
+    <button id="language-toggle" class="absolute top-4 right-4 p-2 bg-gray-600 hover:bg-gray-500 text-white rounded-full shadow-md transition-colors duration-200 z-30 flex items-center gap-1" title="Sprache wechseln">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+            <path d="M2 12h20" />
+        </svg>
+        <span id="current-language-display" class="font-bold">DE</span>
+    </button>
+
+    <!-- Hauptmenü -->
+    <div id="main-menu" class="flex flex-col items-center justify-center p-8 bg-gray-700 rounded-lg shadow-lg">
+        <h1 class="text-4xl sm:text-5xl font-extrabold text-white mb-8 text-center" id="game-title">Tic Tac Toe</h1>
+        <button id="player-vs-player-btn" class="w-full max-w-xs p-4 mb-4 bg-green-500 hover:bg-green-600 text-white text-xl font-bold rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 border-b-4 border-green-700 active:border-b-0 active:translate-y-1">
+            Spieler vs. Spieler
+        </button>
+        <button id="player-vs-bot-btn" class="w-full max-w-xs p-4 bg-blue-500 hover:bg-blue-600 text-white text-xl font-bold rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 border-b-4 border-blue-700 active:border-b-0 active:translate-y-1">
+            Spieler vs. Bot
+        </button>
+    </div>
+
+    <!-- Spielbereich -->
+    <div id="game-area" class="flex-col items-center p-6 bg-gray-700 rounded-lg shadow-xl border-4 border-gray-900 hidden">
+        <div id="status-display" class="text-center mb-4">
+            <div id="current-player-text" class="text-2xl font-bold text-white">Aktueller Spieler: X</div>
+            <div id="rank-info" class="text-xl font-bold text-white mt-2">
+                Dein Rang: Bronze (0 Punkte)
+                <p class="text-sm text-gray-300 mt-1" id="user-id-display"></p>
+            </div>
+        </div>
+        <div id="game-board-container" class="my-6 relative grid grid-cols-3 gap-2 p-4 bg-gray-500 border-4 border-gray-800 rounded-lg shadow-xl">
+            <!-- Spielfelder werden hier durch JavaScript eingefügt -->
+            <canvas id="particles-canvas" class="absolute inset-0 z-5"></canvas>
+            <div id="winning-line-overlay" style="position: absolute; z-index: 10; transition: opacity 0.5s ease-out; opacity: 0;"></div>
+            <div id="win-ring-overlay" class="hidden"></div> <!-- Win ring container -->
+        </div>
+        <div class="flex flex-col sm:flex-row gap-4 w-full justify-center">
+            <button id="new-game-btn" class="px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 border-b-4 border-red-700 active:border-b-0 active:translate-y-1">
+                Neues Spiel
+            </button>
+            <button id="back-to-menu-btn" class="px-6 py-3 bg-gray-600 hover:bg-gray-500 text-white font-bold rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 border-b-4 border-gray-800 active:border-b-0 active:translate-y-1">
+                Zurück zum Menü
+            </button>
+        </div>
+        <div id="bot-thinking-text" class="mt-4 text-white text-lg animate-pulse hidden">Bot denkt nach...</div>
+    </div>
+
+    <!-- Rangfortschritts-Overlay -->
+    <div id="rank-progress-overlay" class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-75 z-40 hidden">
+        <div id="rank-progress-content" class="flex flex-col items-center p-8 bg-gray-800 rounded-lg shadow-2xl border-4 border-yellow-400">
+            <h2 class="text-4xl sm:text-5xl font-extrabold text-white mb-4 text-center" id="rank-overlay-title">Dein Rang</h2>
+            <div class="text-xl sm:text-2xl text-gray-300 mb-2">
+                <span id="prev-rank-text">Vorheriger Rang: </span><span id="prev-rank-name" class="font-bold text-yellow-200"></span>
+            </div>
+            <div class="text-6xl sm:text-7xl font-extrabold text-yellow-300 animate-pulse my-4" id="animated-points">
+                0
+            </div>
+            <div class="text-xl sm:text-2xl text-gray-300 mt-2">
+                <span id="new-rank-text">Neuer Rang: </span><span id="new-rank-name" class="font-bold text-yellow-200"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs & Game Logic Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Globale Firebase-Variablen
+        window.firebaseApp = null;
+        window.firebaseAuth = null;
+        window.firebaseDb = null;
+        window.currentUserId = null;
+        window.isFirebaseReady = false;
+        window.userRankPoints = 0; // Initialisiere globale Rangpunkte
+        window.userRankName = 'Bronze'; // Initialisiere globalen Rangnamen
+
+        // Hilfsfunktion, um die Firebase Konfiguration zu laden.
+        const getFirebaseConfig = () => {
+            try {
+                return JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+            } catch (e) {
+                console.error("Error parsing Firebase config:", e);
+                return {};
+            }
+        };
+
+        // Hilfsfunktion, um die App-ID zu bekommen.
+        const getAppId = () => {
+            return typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        };
+
+        // Translations (globally accessible)
+        window.translations = {
+            de: {
+                gameTitle: "Tic Tac Toe",
+                playerVsPlayer: "Spieler vs. Spieler",
+                playerVsBot: "Spieler vs. Bot",
+                newGame: "Neues Spiel",
+                backToMenu: "Zurück zum Menü",
+                currentPlayer: "Aktueller Spieler",
+                winner: "Gewinner",
+                draw: "Unentschieden!",
+                botThinking: "Bot denkt nach...",
+                yourRank: "Dein Rang",
+                points: "Punkte",
+                loadingRank: "Rang wird geladen...",
+                rankBronze: "Bronze",
+                rankSilver: "Silber",
+                rankGold: "Gold",
+                rankPlatinum: "Platin",
+                rankDiamond: "Diamant",
+                previousRank: "Vorheriger Rang",
+                newRank: "Neuer Rang",
+            },
+            en: {
+                gameTitle: "Tic Tac Toe",
+                playerVsPlayer: "Player vs. Player",
+                playerVsBot: "Player vs. Bot",
+                newGame: "New Game",
+                backToMenu: "Back to Menu",
+                currentPlayer: "Current Player",
+                winner: "Winner",
+                draw: "It's a Draw!",
+                botThinking: "Bot is thinking...",
+                yourRank: "Your Rank",
+                points: "Points",
+                loadingRank: "Loading rank...",
+                rankBronze: "Bronze",
+                rankSilver: "Silver",
+                rankGold: "Gold",
+                rankPlatinum: "Platinum",
+                rankDiamond: "Diamond",
+                previousRank: "Previous Rank",
+                newRank: "New Rank",
+            },
+        };
+
+        // Game State Variables
+        let board = Array(9).fill(null);
+        let currentPlayer = 'X';
+        let winner = null;
+        let winningLine = null;
+        let isBotTurn = false;
+        let gameMode = 'mainMenu'; // 'mainMenu', 'playerVsPlayer', 'playerVsBot'
+        let language = 'de'; // Default language
+
+        // Particle animation variables
+        let particles = [];
+        let animationFrameId = null;
+        let canvas = null;
+        let ctx = null;
+
+        // Dom Elements (declared here, assigned in DOMContentLoaded)
+        let mainMenuDiv, gameAreaDiv, boardContainerDiv, playerVsPlayerBtn, playerVsBotBtn,
+            newGameBtn, backToMenuBtn, currentPlayerText, botThinkingText,
+            languageToggleBtn, currentLanguageDisplay, gameTitleDisplay,
+            rankInfoDisplay, userIdDisplay, winningLineOverlay, winRingOverlay,
+            rankProgressOverlay, rankOverlayTitle, prevRankText, newRankText, animatedPointsDisplay;
+
+        // --- Utility Functions ---
+        // Get current translation object
+        const t = () => window.translations[language];
+
+        // Function to get rank name (globalized to be accessible for Firebase part)
+        window.getRankName = (points) => {
+            const currentTranslations = t(); // Use the current translation object
+            if (points >= 400) return currentTranslations.rankDiamond;
+            if (points >= 300) return currentTranslations.rankPlatinum;
+            if (points >= 200) return currentTranslations.rankGold;
+            if (points >= 100) return currentTranslations.rankSilver;
+            return currentTranslations.rankBronze;
+        };
+
+        // --- UI Update Functions (defined early to be accessible) ---
+        function updateTextContent() {
+            // Ensure elements are not null before accessing properties
+            if (gameTitleDisplay) gameTitleDisplay.textContent = t().gameTitle;
+            if (playerVsPlayerBtn) playerVsPlayerBtn.textContent = t().playerVsPlayer;
+            if (playerVsBotBtn) playerVsBotBtn.textContent = t().playerVsBot; // Corrected: Use t().playerVsBot
+            if (newGameBtn) newGameBtn.textContent = t().newGame;
+            if (backToMenuBtn) backToMenuBtn.textContent = t().backToMenu;
+            if (botThinkingText) botThinkingText.textContent = t().botThinking;
+            if (languageToggleBtn) languageToggleBtn.title = language === 'de' ? 'Sprache wechseln' : 'Change language';
+            if (currentLanguageDisplay) currentLanguageDisplay.textContent = language.toUpperCase();
+            if (rankOverlayTitle) rankOverlayTitle.textContent = t().yourRank;
+            if (prevRankText) prevRankText.textContent = t().previousRank + ": ";
+            if (newRankText) newRankText.textContent = t().newRank + ": "; // This now refers to the span within the overlay
+            updateStatusDisplay(); // Also update status display with new language
+        }
+
+        function updateStatusDisplay() {
+            let statusText = '';
+            if (winner) {
+                if (winner === 'Unentschieden') {
+                    statusText = t().draw;
+                    if (currentPlayerText) currentPlayerText.className = "text-3xl font-bold text-yellow-300";
+                } else {
+                    statusText = `${t().winner}: ${winner}!`;
+                    if (currentPlayerText) currentPlayerText.className = "text-3xl font-bold text-green-400";
+                }
+            } else {
+                statusText = `${t().currentPlayer}: ${currentPlayer}`;
+                if (currentPlayerText) currentPlayerText.className = "text-2xl font-bold text-white";
+            }
+            if (currentPlayerText) currentPlayerText.textContent = statusText;
+
+            if (window.isFirebaseReady && rankInfoDisplay && userIdDisplay) {
+                rankInfoDisplay.innerHTML = `${t().yourRank}: ${window.userRankName} (${window.userRankPoints} ${t().points})`;
+                userIdDisplay.textContent = `User ID: ${window.currentUserId || 'N/A'}`;
+                rankInfoDisplay.style.display = 'block';
+                userIdDisplay.style.display = 'block';
+            } else if (rankInfoDisplay) {
+                rankInfoDisplay.textContent = t().loadingRank;
+                if (userIdDisplay) userIdDisplay.textContent = '';
+                rankInfoDisplay.style.display = 'block';
+            }
+        }
+        
+        // --- Firebase-related Functions ---
+        window.initializeFirebase = async () => {
+            try {
+                const firebaseConfig = getFirebaseConfig();
+                window.firebaseApp = initializeApp(firebaseConfig);
+                window.firebaseAuth = getAuth(window.firebaseApp);
+                window.firebaseDb = getFirestore(window.firebaseApp);
+
+                let currentAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+                if (currentAuthToken) {
+                    await signInWithCustomToken(window.firebaseAuth, currentAuthToken);
+                } else {
+                    await signInAnonymously(window.firebaseAuth);
+                }
+
+                onAuthStateChanged(window.firebaseAuth, (user) => {
+                    if (user) {
+                        window.currentUserId = user.uid;
+                        window.isFirebaseReady = true;
+                        console.log("Firebase initialized and user authenticated:", user.uid);
+                        // Rangdaten abonnieren, sobald der Benutzer angemeldet ist
+                        window.subscribeToRankChanges();
+                        updateStatusDisplay(); // Update UI with user ID and initial rank status
+                    } else {
+                        window.currentUserId = null;
+                        window.isFirebaseReady = false;
+                        console.log("User signed out or not authenticated.");
+                        updateStatusDisplay(); // Update UI on sign out
+                    }
+                });
+            } catch (error) {
+                console.error("Firebase Initialization Error:", error);
+                window.isFirebaseReady = false;
+            }
+        };
+
+        window.subscribeToRankChanges = () => {
+            if (!window.isFirebaseReady || !window.currentUserId || !window.firebaseDb) {
+                console.warn("Cannot subscribe to rank changes: Firebase not ready or user ID missing.");
+                return;
+            }
+
+            const rankDocRef = doc(window.firebaseDb, `artifacts/${getAppId()}/users/${window.currentUserId}/rank`, 'playerRank');
+
+            window.rankUnsubscribe = onSnapshot(rankDocRef, (docSnap) => {
+                let newPoints = 0;
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    newPoints = data.points;
+                } else {
+                    // Rang initialisieren, wenn er nicht existiert
+                    const initialPoints = 0;
+                    setDoc(rankDocRef, { points: initialPoints }).catch(error => console.error("Error setting initial rank:", error));
+                    newPoints = initialPoints;
+                }
+
+                const oldPoints = window.userRankPoints; // Use the current global value
+                const oldRankName = window.getRankName(oldPoints);
+                const newRankName = window.getRankName(newPoints);
+
+                if (newPoints !== oldPoints || newRankName !== oldRankName) {
+                    // Trigger the rank progress display
+                    window.showRankProgressOverlay(oldPoints, newPoints, oldRankName, newRankName);
+                    
+                    // Trigger the subtle pop animation on the rank text in the status bar
+                    if (document.getElementById('rank-info')) {
+                      document.getElementById('rank-info').classList.add('animate-rank-pop');
+                      setTimeout(() => {
+                          document.getElementById('rank-info').classList.remove('animate-rank-pop');
+                      }, 500);
+                    }
+                }
+                
+                window.userRankPoints = newPoints;
+                window.userRankName = newRankName;
+                updateStatusDisplay(); // Update status bar with new rank info
+            }, (error) => {
+                console.error("Error listening to rank:", error);
+            });
+        };
+
+        window.updatePlayerRank = async (gameOutcome) => {
+            if (!window.firebaseDb || !window.currentUserId || gameMode !== 'playerVsBot') {
+                console.log("Not in bot mode or Firestore/User ID not ready. Rank will not be updated.");
+                return;
+            }
+
+            const rankDocRef = doc(window.firebaseDb, `artifacts/${getAppId()}/users/${window.currentUserId}/rank`, 'playerRank');
+            let newPoints = window.userRankPoints;
+
+            switch (gameOutcome) {
+                case 'win':
+                    newPoints += 20;
+                    break;
+                case 'loss':
+                    newPoints = Math.max(0, newPoints - 10);
+                    break;
+                case 'draw':
+                    newPoints += 5;
+                    break;
+                default:
+                    break;
+            }
+
+            try {
+                await updateDoc(rankDocRef, { points: newPoints });
+            } catch (error) {
+                console.error("Error updating rank:", error);
+            }
+        };
+
+        window.showRankProgressOverlay = (oldP, newP, oldR, newR) => {
+            const overlay = document.getElementById('rank-progress-overlay');
+            const overlayContent = document.getElementById('rank-progress-content');
+            
+            if (!overlay || !overlayContent || !animatedPointsDisplay || !prevRankText || !newRankText || !rankOverlayTitle) {
+                console.error("Rank progress overlay elements not found. Cannot show animation.");
+                return;
+            }
+
+            // Set initial points for animation
+            let animatedPoints = oldP;
+            overlayContent.querySelector('#prev-rank-name').textContent = oldR;
+            overlayContent.querySelector('#new-rank-name').textContent = newR;
+            animatedPointsDisplay.textContent = Math.round(animatedPoints); // Use the global animatedPointsDisplay
+
+            overlay.classList.remove('hidden');
+            overlay.classList.add('animate-overlay-fade-in');
+            overlayContent.classList.remove('scale-0'); // Ensure it's not scaled down from previous animation
+            overlayContent.classList.add('animate-rank-overlay-enter');
+
+            let start = null;
+            const duration = 2000; // 2 seconds for animation
+
+            const animatePoints = (currentTime) => {
+                if (!start) start = currentTime;
+                const progress = (currentTime - start) / duration;
+
+                if (progress < 1) {
+                    const easedProgress = 0.5 - Math.cos(progress * Math.PI) / 2;
+                    const current = oldP + (newP - oldP) * easedProgress;
+                    animatedPointsDisplay.textContent = Math.round(current);
+                    requestAnimationFrame(animatePoints);
+                } else {
+                    animatedPointsDisplay.textContent = newP;
+                    // Hide after a total of 4 seconds
+                    setTimeout(() => {
+                        overlay.classList.add('hidden');
+                        overlay.classList.remove('animate-overlay-fade-in');
+                        overlayContent.classList.remove('animate-rank-overlay-enter');
+                    }, 2000); // 2 seconds after point animation finishes
+                }
+            };
+            requestAnimationFrame(animatePoints);
+        };
+
+        // --- Game Logic Functions ---
+        function calculateWinner(squares) {
+            const lines = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6],
+            ];
+            for (let i = 0; i < lines.length; i++) {
+                const [a, b, c] = lines[i];
+                if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+                    return { winner: squares[a], line: lines[i] };
+                }
+            }
+            return { winner: null, line: null };
+        }
+
+        function handleSquareClick(i) {
+            if (winner || board[i] || (gameMode === 'playerVsBot' && isBotTurn)) {
+                return;
+            }
+
+            board[i] = currentPlayer;
+            
+            const { winner: potentialWinner, line: winningLineFound } = calculateWinner(board);
+            if (potentialWinner) {
+                winner = potentialWinner;
+                winningLine = winningLineFound;
+                if (winner !== 'Unentschieden') {
+                    triggerWinRingAnimation();
+                }
+                if (gameMode === 'playerVsBot') {
+                    if (winner === currentPlayer) { // CurrentPlayer is the human who just made the move
+                        window.updatePlayerRank('win');
+                    } else {
+                        window.updatePlayerRank('loss');
+                    }
+                }
+                renderBoard(); // Render final state immediately after win/draw
+                updateStatusDisplay();
+            } else if (board.every(square => square !== null)) {
+                winner = 'Unentschieden';
+                winningLine = null;
+                if (gameMode === 'playerVsBot') {
+                    window.updatePlayerRank('draw');
+                }
+                renderBoard(); // Render final state immediately after win/draw
+                updateStatusDisplay();
+            } else {
+                currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                renderBoard(); // Render board after player's valid move, before bot's turn
+                updateStatusDisplay();
+            }
+            
+            // Only trigger bot's turn if no winner/draw after player's move
+            if (gameMode === 'playerVsBot' && currentPlayer === 'O' && !winner) {
+                isBotTurn = true;
+                if (botThinkingText) botThinkingText.classList.remove('hidden');
+                renderBoard(); // Re-render to disable squares while bot is thinking
+                setTimeout(() => {
+                    makeBotMove(); // This function now only updates game state
+                    isBotTurn = false; // Bot's turn is over
+                    if (botThinkingText) botThinkingText.classList.add('hidden');
+                    renderBoard(); // Re-render to enable squares if no winner/draw after bot's move
+                    updateStatusDisplay(); // Update status display after bot's move
+                }, 2000); // Bot thinking delay
+            }
+        }
+
+        function makeBotMove() {
+            if (winner) return; // Should not happen if called correctly
+
+            const emptySquares = board.map((val, idx) => val === null ? idx : null).filter(val => val !== null);
+            if (emptySquares.length === 0) return;
+
+            let botMoveIndex = -1;
+
+            // 1. Check if bot can win
+            for (let i = 0; i < emptySquares.length; i++) {
+                const tempBoard = [...board];
+                tempBoard[emptySquares[i]] = 'O';
+                const { winner: tempWinner } = calculateWinner(tempBoard);
+                if (tempWinner === 'O') {
+                    botMoveIndex = emptySquares[i];
+                    break;
+                }
+            }
+
+            // 2. Check if player can win and block
+            if (botMoveIndex === -1) {
+                for (let i = 0; i < emptySquares.length; i++) {
+                    const tempBoard = [...board];
+                    tempBoard[emptySquares[i]] = 'X';
+                    const { winner: tempWinner } = calculateWinner(tempBoard);
+                    if (tempWinner === 'X') {
+                        botMoveIndex = emptySquares[i];
+                        break;
+                    }
+                }
+            }
+
+            // 3. Take center if available
+            if (botMoveIndex === -1 && board[4] === null) {
+                botMoveIndex = 4;
+            }
+
+            // 4. Take a corner if available
+            if (botMoveIndex === -1) {
+                const corners = [0, 2, 6, 8].filter(idx => board[idx] === null);
+                if (corners.length > 0) {
+                    botMoveIndex = corners[Math.floor(Math.random() * corners.length)];
+                }
+            }
+
+            // 5. Take any empty square
+            if (botMoveIndex === -1) {
+                const randomIndex = Math.floor(Math.random() * emptySquares.length);
+                botMoveIndex = emptySquares[randomIndex];
+            }
+
+            board[botMoveIndex] = 'O'; // Bot makes its move
+            
+            const { winner: potentialWinner, line: winningLineFound } = calculateWinner(board);
+            if (potentialWinner) {
+                winner = potentialWinner;
+                winningLine = winningLineFound;
+                if (winner !== 'Unentschieden') {
+                    triggerWinRingAnimation();
+                }
+                if (gameMode === 'playerVsBot') {
+                    if (winner === 'O') { // Bot ('O') won
+                        window.updatePlayerRank('loss'); // Human player ('X') lost
+                    } else {
+                        // This case (X winning after O's move) should ideally not happen if bot logic is sound,
+                        // but if it does, it's a win for the player from the game's perspective.
+                        window.updatePlayerRank('win');
+                    }
+                }
+            } else if (board.every(square => square !== null)) {
+                winner = 'Unentschieden';
+                winningLine = null;
+                if (gameMode === 'playerVsBot') {
+                    window.updatePlayerRank('draw');
+                }
+            } else {
+                currentPlayer = 'X'; // After bot's move, it's always player 'X's turn
+            }
+
+            // IMPORTANT: renderBoard() and updateStatusDisplay() are now called in the setTimeout callback
+            // in handleSquareClick, AFTER isBotTurn is set to false.
+        }
+
+        function resetGame() {
+            board = Array(9).fill(null);
+            currentPlayer = 'X';
+            winner = null;
+            winningLine = null;
+            isBotTurn = false;
+            if (botThinkingText) botThinkingText.classList.add('hidden');
+            renderBoard();
+            updateStatusDisplay();
+            if (winRingOverlay) winRingOverlay.classList.add('hidden'); // Ensure ring is hidden
+        }
+
+        function backToMainMenu() {
+            resetGame();
+            if (gameAreaDiv) gameAreaDiv.classList.add('hidden');
+            if (mainMenuDiv) mainMenuDiv.classList.remove('hidden');
+        }
+
+        // --- Animation Functions ---
+        function drawWinningLine() {
+            if (!winningLine || !boardContainerDiv || !winningLineOverlay) {
+                if (winningLineOverlay) winningLineOverlay.style.opacity = '0';
+                return;
+            }
+
+            const lineThickness = 8; // in Pixeln
+            const boardPaddingPx = 16; // 1rem = 16px (for p-4)
+
+            const boardRect = boardContainerDiv.getBoundingClientRect();
+            const effectiveGridWidth = boardRect.width - (2 * boardPaddingPx);
+            const effectiveGridHeight = boardRect.height - (2 * boardPaddingPx);
+
+            const cellWidth = effectiveGridWidth / 3;
+            const cellHeight = effectiveGridHeight / 3;
+
+            const getSquareCenter = (squareIndex) => {
+                const row = Math.floor(squareIndex / 3);
+                const col = squareIndex % 3;
+                const centerX = boardPaddingPx + col * cellWidth + cellWidth / 2;
+                const centerY = boardPaddingPx + row * cellHeight + cellHeight / 2;
+                return { x: centerX, y: centerY };
+            };
+
+            const startCellIndex = winningLine[0];
+            const endCellIndex = winningLine[2]; 
+
+            const startCenter = getSquareCenter(startCellIndex);
+            const endCenter = getSquareCenter(endCellIndex);
+
+            const dx = endCenter.x - startCenter.x;
+            const dy = endCenter.y - startCenter.y;
+
+            const lineLength = Math.sqrt(dx * dx + dy * dy);
+            const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+            const midX = (startCenter.x + endCenter.x) / 2;
+            const midY = (startCenter.y + endCenter.y) / 2;
+
+            winningLineOverlay.style.cssText = `
+                background-color: rgb(34, 197, 94);
+                border-radius: 9999px;
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+                position: absolute;
+                z-index: 10;
+                transition: opacity 0.5s ease-out;
+                opacity: 1; /* Make visible for animation */
+                width: ${lineLength}px;
+                height: ${lineThickness}px;
+                left: ${midX - lineLength / 2}px;
+                top: ${midY - lineThickness / 2}px;
+                transform-origin: center center;
+                transform: rotate(${angle}deg);
+            `;
+
+            // Particle animation
+            startParticleAnimation();
+        }
+
+        let particlesAnimationFrameId = null;
+        let particleArray = [];
+
+        function startParticleAnimation() {
+            if (particlesAnimationFrameId) cancelAnimationFrame(particlesAnimationFrameId); // Stop existing animation
+
+            if (!canvas || !ctx || !boardContainerDiv || !winningLine) {
+                console.warn("Cannot start particle animation: Missing required elements or winningLine.");
+                return;
+            }
+
+            const boardRect = boardContainerDiv.getBoundingClientRect();
+            canvas.width = boardRect.width;
+            canvas.height = boardRect.height;
+
+            particleArray = []; // Clear previous particles
+            const boardPaddingPx = 16;
+            const effectiveGridWidth = boardRect.width - (2 * boardPaddingPx);
+            const effectiveGridHeight = boardRect.height - (2 * boardPaddingPx);
+            const cellWidth = effectiveGridWidth / 3;
+            const cellHeight = effectiveGridHeight / 3;
+
+            winningLine.forEach(squareIndex => {
+                const row = Math.floor(squareIndex / 3);
+                const col = squareIndex % 3;
+                const centerX = boardPaddingPx + col * cellWidth + cellWidth / 2;
+                const centerY = boardPaddingPx + row * cellHeight + cellHeight / 2;
+
+                for (let i = 0; i < 15; i++) {
+                    particleArray.push({ // Using particleArray here, consistent with declaration
+                        x: centerX,
+                        y: centerY,
+                        vx: (Math.random() - 0.5) * 4,
+                        vy: (Math.random() - 0.5) * 4,
+                        life: 0,
+                        maxLife: 60 + Math.random() * 30,
+                        radius: 2 + Math.random() * 2,
+                        color: '0, 255, 0'
+                    });
+                }
+            });
+
+            const animateParticles = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                for (let i = 0; i < particleArray.length; i++) { // Using particleArray here
+                    const p = particleArray[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.life++;
+
+                    const alpha = 1 - (p.life / p.maxLife);
+                    const currentRadius = p.radius * Math.max(0.01, alpha);
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, currentRadius, 0, Math.PI * 2, false);
+                    ctx.fillStyle = `rgba(${p.color}, ${alpha})`;
+                    ctx.fill();
+
+                    if (p.life >= p.maxLife) {
+                        particleArray.splice(i, 1);
+                        i--;
+                    }
+                }
+                if (particleArray.length > 0) { // Check 'particleArray' length
+                    animationFrameId = requestAnimationFrame(animateParticles);
+                } else {
+                    animationFrameId = null; // Animation finished
+                }
+            };
+            animationFrameId = requestAnimationFrame(animateParticles); // Use general animationFrameId
+        }
+
+        let winRingAnimationTimeout = null;
+        function triggerWinRingAnimation() {
+            if (!winRingOverlay) {
+                console.warn("winRingOverlay element not found. Cannot trigger win ring animation.");
+                return;
+            }
+            // Clear any existing animation before starting a new one
+            if (winRingAnimationTimeout) clearTimeout(winRingAnimationTimeout);
+            
+            winRingOverlay.classList.remove('hidden');
+            // Remove and re-add the class to re-trigger the animation
+            winRingOverlay.classList.remove('win-ring');
+            void winRingOverlay.offsetWidth; // Trigger reflow to restart animation
+            winRingOverlay.classList.add('win-ring');
+
+            winRingAnimationTimeout = setTimeout(() => {
+                winRingOverlay.classList.add('hidden');
+            }, 1000); // Duration of the animation
+        }
+
+        function renderBoard() {
+            if (!boardContainerDiv || !canvas || !winningLineOverlay || !winRingOverlay) {
+                console.error("Board rendering elements not found."); // Keep this error for critical missing elements
+                return;
+            }
+            boardContainerDiv.innerHTML = ''; // Clear existing board
+            // Re-add canvas and winning line overlay as they might be cleared
+            boardContainerDiv.appendChild(canvas);
+            boardContainerDiv.appendChild(winningLineOverlay);
+            boardContainerDiv.appendChild(winRingOverlay); // Ensure win ring overlay is present
+
+            for (let i = 0; i < 9; i++) {
+                const squareBtn = document.createElement('button');
+                squareBtn.classList.add(
+                    'w-24', 'h-24', 'sm:w-28', 'sm:h-28', 'md:w-32', 'md:h-32',
+                    'bg-gray-200', 'border-4', 'border-gray-700', 'rounded-md',
+                    'flex', 'items-center', 'justify-center', 'text-4xl', 'sm:text-5xl', 'md:text-6xl',
+                    'font-bold', 'font-mono', 'text-gray-800', 'shadow-inner',
+                    'hover:bg-gray-300', 'transition-colors', 'duration-200',
+                    'relative', 'z-20' // Higher z-index to be clickable over canvas
+                );
+                squareBtn.dataset.index = i; // Store index for click handler
+                squareBtn.textContent = board[i];
+
+                // Disable logic based on current game state
+                if (winner || board[i] !== null || (gameMode === 'playerVsBot' && isBotTurn)) {
+                    squareBtn.disabled = true;
+                    squareBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                } else {
+                    squareBtn.disabled = false;
+                    squareBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+                
+                squareBtn.addEventListener('click', () => handleSquareClick(i));
+                boardContainerDiv.appendChild(squareBtn);
+            }
+
+            if (winningLine) {
+                drawWinningLine();
+            } else {
+                winningLineOverlay.style.opacity = '0';
+            }
+        }
+
+
+        // Initial render logic
+        document.addEventListener('DOMContentLoaded', () => {
+            // Assign ALL DOM elements once the document is ready, at the very beginning
+            mainMenuDiv = document.getElementById('main-menu');
+            gameAreaDiv = document.getElementById('game-area');
+            boardContainerDiv = document.getElementById('game-board-container');
+            playerVsPlayerBtn = document.getElementById('player-vs-player-btn');
+            playerVsBotBtn = document.getElementById('player-vs-bot-btn');
+            newGameBtn = document.getElementById('new-game-btn');
+            backToMenuBtn = document.getElementById('back-to-menu-btn');
+            currentPlayerText = document.getElementById('current-player-text');
+            botThinkingText = document.getElementById('bot-thinking-text');
+            languageToggleBtn = document.getElementById('language-toggle');
+            currentLanguageDisplay = document.getElementById('current-language-display');
+            gameTitleDisplay = document.getElementById('game-title');
+            rankInfoDisplay = document.getElementById('rank-info');
+            userIdDisplay = document.getElementById('user-id-display');
+            winningLineOverlay = document.getElementById('winning-line-overlay');
+            winRingOverlay = document.getElementById('win-ring-overlay');
+            rankProgressOverlay = document.getElementById('rank-progress-overlay');
+            rankOverlayTitle = document.getElementById('rank-overlay-title');
+            prevRankText = document.getElementById('prev-rank-text');
+            newRankText = document.getElementById('new-rank-name'); 
+            animatedPointsDisplay = document.getElementById('animated-points');
+
+            canvas = document.getElementById('particles-canvas');
+            if (canvas) {
+                ctx = canvas.getContext('2d');
+            }
+            
+            // --- Event Listeners ---
+            if (playerVsPlayerBtn) {
+                playerVsPlayerBtn.addEventListener('click', () => {
+                    gameMode = 'playerVsPlayer';
+                    if (mainMenuDiv) mainMenuDiv.classList.add('hidden');
+                    if (gameAreaDiv) gameAreaDiv.classList.remove('hidden');
+                    resetGame();
+                });
+            }
+
+            if (playerVsBotBtn) {
+                playerVsBotBtn.addEventListener('click', () => {
+                    gameMode = 'playerVsBot';
+                    if (mainMenuDiv) mainMenuDiv.classList.add('hidden');
+                    if (gameAreaDiv) gameAreaDiv.classList.remove('hidden');
+                    resetGame();
+                });
+            }
+
+            if (newGameBtn) newGameBtn.addEventListener('click', resetGame);
+            if (backToMenuBtn) backToMenuBtn.addEventListener('click', backToMainMenu);
+            if (languageToggleBtn) {
+                languageToggleBtn.addEventListener('click', () => {
+                    language = (language === 'de' ? 'en' : 'de');
+                    updateTextContent();
+                });
+            }
+            // --- End of Event Listeners ---
+
+            // Call functions that rely on elements *after* they have all been assigned
+            updateTextContent(); 
+            renderBoard(); 
+            window.initializeFirebase(); 
+        });
+    </script>
+</body>
+</html>
 
