@@ -72,6 +72,17 @@
         <span id="current-language-display" class="font-bold">DE</span>
     </button>
 
+    <!-- Profil-Anzeige (oben links) -->
+    <div id="profile-display" class="absolute top-4 left-4 p-3 bg-gray-700 rounded-lg shadow-md border border-gray-600 text-white z-30 hidden">
+        <div class="text-lg font-bold" id="username-in-profile">Gast</div>
+        <div class="text-sm text-gray-300" id="rank-name-in-profile">Bronze</div>
+        <div class="w-full bg-gray-600 rounded-full h-2 mt-1">
+            <div id="rank-progress-bar-fill" class="bg-yellow-400 h-2 rounded-full transition-all duration-300 ease-out" style="width: 0%;"></div>
+        </div>
+        <div class="text-xs text-gray-400 text-right mt-1" id="rank-points-in-profile">0/100 Pkt.</div>
+    </div>
+
+
     <!-- Anmelde-/Registrierungsbildschirm -->
     <div id="auth-screen" class="flex flex-col items-center justify-center p-8 bg-gray-700 rounded-lg shadow-lg hidden">
         <h1 class="text-4xl sm:text-5xl font-extrabold text-white mb-8 text-center" id="auth-title">Anmelden / Registrieren</h1>
@@ -300,7 +311,8 @@
             rankProgressOverlay, rankOverlayTitle, prevRankText, newRankText, animatedPointsDisplay,
             authScreenDiv, emailInput, passwordInput, loginBtn, signupBtn, googleSignInBtn, authMessageDisplay,
             usernameScreenDiv, usernameInput, saveUsernameBtn, usernameMessageDisplay,
-            authTitleDisplay, usernameTitleDisplay, usernamePromptDisplay, logoutBtn; // New DOM elements
+            authTitleDisplay, usernameTitleDisplay, usernamePromptDisplay, logoutBtn,
+            profileDisplay, usernameInProfile, rankNameInProfile, rankProgressBarFill, rankPointsInProfile; // New Profile Display elements
 
         // --- Utility Functions ---
         // Get current translation object
@@ -314,6 +326,34 @@
             if (points >= 200) return currentTranslations.rankGold;
             if (points >= 100) return currentTranslations.rankSilver;
             return currentTranslations.rankBronze;
+        };
+
+        // Funktion zur Berechnung des Rangfortschritts (Punkte innerhalb des aktuellen Rangs)
+        const getRankProgressDetails = (points) => {
+            let basePoints = 0;
+            let nextRankPoints = 100;
+            if (points >= 400) { // Diamond
+                basePoints = 400;
+                nextRankPoints = 400; // No next rank beyond Diamond for now
+            } else if (points >= 300) { // Platinum
+                basePoints = 300;
+                nextRankPoints = 400;
+            } else if (points >= 200) { // Gold
+                basePoints = 200;
+                nextRankPoints = 300;
+            } else if (points >= 100) { // Silver
+                basePoints = 100;
+                nextRankPoints = 200;
+            }
+            const pointsInCurrentRank = points - basePoints;
+            const pointsToNextRank = nextRankPoints - basePoints;
+            const progressPercentage = pointsToNextRank > 0 ? (pointsInCurrentRank / pointsToNextRank) * 100 : 100;
+
+            return {
+                pointsInCurrentRank,
+                pointsToNextRank,
+                progressPercentage: Math.min(100, progressPercentage) // Clamp to 100%
+            };
         };
 
         // --- UI Update Functions (defined early to be accessible) ---
@@ -371,6 +411,7 @@
             }
             if (currentPlayerText) currentPlayerText.textContent = statusText;
 
+            // Update main rank info display (in game area)
             if (window.isFirebaseReady && rankInfoDisplay && userIdDisplay) {
                 rankInfoDisplay.innerHTML = `${t().yourRank}: ${window.userRankName} (${window.userRankPoints} ${t().points})`;
                 userIdDisplay.textContent = `User ID: ${window.currentUserId || 'N/A'}`;
@@ -389,6 +430,24 @@
                 const usernameDisplayElement = document.getElementById('username-display');
                 if(usernameDisplayElement) usernameDisplayElement.textContent = '';
                 rankInfoDisplay.style.display = 'block';
+            }
+
+            // Update profile display (top-left corner)
+            if (profileDisplay && window.isFirebaseReady) {
+                if (usernameInProfile) usernameInProfile.textContent = window.userDisplayName || 'Gast';
+                if (rankNameInProfile) rankNameInProfile.textContent = window.userRankName;
+                if (rankPointsInProfile) {
+                    const progress = getRankProgressDetails(window.userRankPoints);
+                    if (progress.pointsToNextRank === 0) { // Max rank reached
+                        rankPointsInProfile.textContent = `${window.userRankPoints} ${t().points}`;
+                    } else {
+                        rankPointsInProfile.textContent = `${progress.pointsInCurrentRank}/${progress.pointsToNextRank} ${t().points}`;
+                    }
+                }
+                if (rankProgressBarFill) {
+                    const progress = getRankProgressDetails(window.userRankPoints);
+                    rankProgressBarFill.style.width = `${progress.progressPercentage}%`;
+                }
             }
         }
 
@@ -428,6 +487,7 @@
             gameAreaDiv.classList.add('hidden');
             authScreenDiv.classList.add('hidden');
             usernameScreenDiv.classList.add('hidden');
+            if (profileDisplay) profileDisplay.classList.add('hidden'); // Hide profile by default
 
             switch (screenName) {
                 case 'auth':
@@ -438,9 +498,11 @@
                     break;
                 case 'mainMenu':
                     mainMenuDiv.classList.remove('hidden');
+                    if (profileDisplay && window.isFirebaseReady && window.userDisplayName) profileDisplay.classList.remove('hidden');
                     break;
                 case 'game':
                     gameAreaDiv.classList.remove('hidden');
+                    if (profileDisplay && window.isFirebaseReady && window.userDisplayName) profileDisplay.classList.remove('hidden');
                     break;
             }
             currentScreen = screenName;
@@ -1108,6 +1170,13 @@
             usernameTitleDisplay = document.getElementById('username-title');
             usernamePromptDisplay = document.querySelector('#username-screen p'); // Select the p tag in username screen
             logoutBtn = document.getElementById('logout-btn');
+
+            // Profile Display elements
+            profileDisplay = document.getElementById('profile-display');
+            usernameInProfile = document.getElementById('username-in-profile');
+            rankNameInProfile = document.getElementById('rank-name-in-profile');
+            rankProgressBarFill = document.getElementById('rank-progress-bar-fill');
+            rankPointsInProfile = document.getElementById('rank-points-in-profile');
 
 
             canvas = document.getElementById('particles-canvas');
