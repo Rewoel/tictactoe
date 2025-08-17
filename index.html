@@ -418,7 +418,7 @@
         };
 
         // --- UI Update Functions (defined early to be accessible) ---
-        function updateTextContent() {
+        const updateTextContent = () => { // Changed to const arrow function
             // Main Menu
             if (gameTitleDisplay) gameTitleDisplay.textContent = t().gameTitle;
             if (playerVsPlayerBtn) playerVsPlayerBtn.textContent = t().playerVsPlayer;
@@ -467,9 +467,9 @@
 
 
             updateStatusDisplay(); // Also update status display with new language
-        }
+        }; // Added semicolon
 
-        function updateStatusDisplay() {
+        const updateStatusDisplay = () => { // Changed to const arrow function
             let statusText = '';
             if (winner) {
                 if (winner === 'Unentschieden') {
@@ -522,54 +522,54 @@
                     rankProgressBarFill.style.width = `${progress.progressPercentage}%`;
                 }
             }
-        }
+        }; // Added semicolon
 
-        function showAuthMessage(message, isError = true) {
+        const showAuthMessage = (message, isError = true) => { // Changed to const arrow function
             if (authMessageDisplay) {
                 authMessageDisplay.textContent = (isError ? t().authError : '') + message;
                 authMessageDisplay.classList.remove('hidden');
                 authMessageDisplay.classList.toggle('text-red-300', isError);
                 authMessageDisplay.classList.toggle('text-green-300', !isError);
             }
-        }
+        }; // Added semicolon
 
-        function hideAuthMessage() {
+        const hideAuthMessage = () => { // Changed to const arrow function
             if (authMessageDisplay) {
                 authMessageDisplay.classList.add('hidden');
             }
-        }
+        }; // Added semicolon
 
-        function showUsernameMessage(message, isError = true) {
+        const showUsernameMessage = (message, isError = true) => { // Changed to const arrow function
             if (usernameMessageDisplay) {
                 usernameMessageDisplay.textContent = (isError ? t().usernameError : '') + message;
                 usernameMessageDisplay.classList.remove('hidden');
                 usernameMessageDisplay.classList.toggle('text-red-300', isError);
                 usernameMessageDisplay.classList.toggle('text-green-300', !isError);
             }
-        }
+        }; // Added semicolon
 
-        function hideUsernameMessage() {
+        const hideUsernameMessage = () => { // Changed to const arrow function
             if (usernameMessageDisplay) {
                 usernameMessageDisplay.classList.add('hidden');
             }
-        }
+        }; // Added semicolon
 
-        function showMultiplayerLobbyMessage(message, isError = true) {
+        const showMultiplayerLobbyMessage = (message, isError = true) => { // Changed to const arrow function
             if (multiplayerLobbyMessage) {
                 multiplayerLobbyMessage.textContent = (isError ? t().lobbyMessageError : '') + message;
                 multiplayerLobbyMessage.classList.remove('hidden');
                 multiplayerLobbyMessage.classList.toggle('text-red-300', isError);
                 multiplayerLobbyMessage.classList.toggle('text-green-300', !isError);
             }
-        }
+        }; // Added semicolon
 
-        function hideMultiplayerLobbyMessage() {
+        const hideMultiplayerLobbyMessage = () => { // Changed to const arrow function
             if (multiplayerLobbyMessage) {
                 multiplayerLobbyMessage.classList.add('hidden');
             }
-        }
+        }; // Added semicolon
 
-        function renderScreen(screenName) {
+        const renderScreen = (screenName) => { // Changed to const arrow function
             mainMenuDiv.classList.add('hidden');
             gameAreaDiv.classList.add('hidden');
             authScreenDiv.classList.add('hidden');
@@ -599,7 +599,7 @@
             }
             currentScreen = screenName;
             updateTextContent(); // Ensure texts are correct for the new screen
-        }
+        }; // Added semicolon
         
         // --- Firebase-related Functions ---
         window.initializeFirebase = async () => {
@@ -634,15 +634,15 @@
             }
         };
 
-        async function generateFriendCode() {
+        const generateFriendCode = async () => { // Changed to const arrow function
             // Simple deterministic code for demo based on user ID
             if (window.currentUserId) {
                 return window.currentUserId.substring(0, 6).toUpperCase();
             }
             return null;
-        }
+        }; // Added semicolon
 
-        async function checkUserDisplayName(uid) {
+        const checkUserDisplayName = async (uid) => { // Changed to const arrow function
             if (!window.firebaseDb) return;
             const profileDocRef = doc(window.firebaseDb, `artifacts/${getAppId()}/users/${uid}/profile`, 'userProfile');
             try {
@@ -665,7 +665,7 @@
                 showUsernameMessage("Fehler beim Laden des Profils: " + error.message);
                 renderScreen('username'); // Fallback to username screen on error
             }
-        }
+        }; // Added semicolon
 
 
         window.subscribeToRankChanges = () => {
@@ -789,7 +789,7 @@
         };
 
         // --- Game Logic Functions ---
-        function calculateWinner(squares) {
+        const calculateWinner = (squares) => { // Changed to const arrow function
             const lines = [
                 [0, 1, 2], [3, 4, 5], [6, 7, 8],
                 [0, 3, 6], [1, 4, 7], [2, 5, 8],
@@ -802,9 +802,9 @@
                 }
             }
             return { winner: null, line: null };
-        }
+        }; // Added semicolon
 
-        async function handleSquareClick(i) {
+        const handleSquareClick = async (i) => { // Changed to const arrow function
             if (winner || board[i] || (gameMode === 'playerVsBot' && isBotTurn)) {
                 return;
             }
@@ -891,9 +891,9 @@
                     updateStatusDisplay(); // Update status display after bot's move
                 }, 2000); // Bot thinking delay
             }
-        }
+        }; // Added semicolon
 
-        function makeBotMove() {
+        const makeBotMove = () => { // Changed to const arrow function
             if (winner) return; // Should not happen if called correctly
 
             const emptySquares = board.map((val, idx) => val === null ? idx : null).filter(val => val !== null);
@@ -974,422 +974,7 @@
 
             // IMPORTANT: renderBoard() and updateStatusDisplay() are now called in the setTimeout callback
             // in handleSquareClick, AFTER isBotTurn is set to false.
-        }
-
-        // Changed to const arrow function to prevent redeclaration error
-        const resetGame = () => {
-            board = Array(9).fill(null);
-            currentPlayer = 'X';
-            winner = null;
-            winningLine = null;
-            isBotTurn = false;
-            if (botThinkingText) botThinkingText.classList.add('hidden');
-            if (gameSessionUnsubscribe) { // Unsubscribe from multiplayer game if active
-                gameSessionUnsubscribe();
-                gameSessionUnsubscribe = null;
-            }
-            currentMultiplayerGameRef = null;
-            isPlayerX = false;
-            renderBoard();
-            updateStatusDisplay();
-            if (winRingOverlay) winRingOverlay.classList.add('hidden'); // Ensure ring is hidden
-        };
-
-        // Changed to const arrow function to prevent redeclaration error
-        const backToMainMenu = () => {
-            resetGame();
-            renderScreen('mainMenu');
-        };
-
-        // --- Animation Functions ---
-        function drawWinningLine() {
-            if (!winningLine || !boardContainerDiv || !winningLineOverlay) {
-                if (winningLineOverlay) winningLineOverlay.style.opacity = '0';
-                return;
-            }
-
-            const lineThickness = 8; // in Pixeln
-            const boardPaddingPx = 16; // 1rem = 16px (for p-4)
-
-            const boardRect = boardContainerDiv.getBoundingClientRect();
-            const effectiveGridWidth = boardRect.width - (2 * boardPaddingPx);
-            const effectiveGridHeight = boardRect.height - (2 * boardPaddingPx);
-
-            const cellWidth = effectiveGridWidth / 3;
-            const cellHeight = effectiveGridHeight / 3;
-
-            const getSquareCenter = (squareIndex) => {
-                const row = Math.floor(squareIndex / 3);
-                const col = squareIndex % 3;
-                const centerX = boardPaddingPx + col * cellWidth + cellWidth / 2;
-                const centerY = boardPaddingPx + row * cellHeight + cellHeight / 2;
-                return { x: centerX, y: centerY };
-            };
-
-            const startCellIndex = winningLine[0];
-            const endCellIndex = winningLine[2]; 
-
-            const startCenter = getSquareCenter(startCellIndex);
-            const endCenter = getSquareCenter(endCellIndex);
-
-            const dx = endCenter.x - startCenter.x;
-            const dy = endCenter.y - startCenter.y;
-
-            const lineLength = Math.sqrt(dx * dx + dy * dy);
-            const angle = Math.atan2(dy, dx) * 180 / Math.PI;
-
-            const midX = (startCenter.x + endCenter.x) / 2;
-            const midY = (startCenter.y + endCenter.y) / 2;
-
-            winningLineOverlay.style.cssText = `
-                background-color: rgb(34, 197, 94);
-                border-radius: 9999px;
-                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-                position: absolute;
-                z-index: 10;
-                transition: opacity 0.5s ease-out;
-                opacity: 1; /* Make visible for animation */
-                width: ${lineLength}px;
-                height: ${lineThickness}px;
-                left: ${midX - lineLength / 2}px;
-                top: ${midY - lineThickness / 2}px;
-                transform-origin: center center;
-                transform: rotate(${angle}deg);
-            `;
-
-            // Particle animation
-            startParticleAnimation();
-        }
-
-        let particlesAnimationFrameId = null;
-        let particleArray = [];
-
-        function startParticleAnimation() {
-            if (particlesAnimationFrameId) cancelAnimationFrame(particlesAnimationFrameId); // Stop existing animation
-
-            if (!canvas || !ctx || !boardContainerDiv || !winningLine) {
-                console.warn("Cannot start particle animation: Missing required elements or winningLine.");
-                return;
-            }
-
-            const boardRect = boardContainerDiv.getBoundingClientRect();
-            canvas.width = boardRect.width;
-            canvas.height = boardRect.height;
-
-            particleArray = []; // Clear previous particles
-            const boardPaddingPx = 16;
-            const effectiveGridWidth = boardRect.width - (2 * boardPaddingPx);
-            const effectiveGridHeight = boardRect.height - (2 * boardPaddingPx);
-            const cellWidth = effectiveGridWidth / 3;
-            const cellHeight = effectiveGridHeight / 3;
-
-            winningLine.forEach(squareIndex => {
-                const row = Math.floor(squareIndex / 3);
-                const col = squareIndex % 3;
-                const centerX = boardPaddingPx + col * cellWidth + cellWidth / 2;
-                const centerY = boardPaddingPx + row * cellHeight + cellHeight / 2;
-
-                for (let i = 0; i < 15; i++) {
-                    particleArray.push({ // Using particleArray here, consistent with declaration
-                        x: centerX,
-                        y: centerY,
-                        vx: (Math.random() - 0.5) * 4,
-                        vy: (Math.random() - 0.5) * 4,
-                        life: 0,
-                        maxLife: 60 + Math.random() * 30,
-                        radius: 2 + Math.random() * 2,
-                        color: '0, 255, 0'
-                    });
-                }
-            });
-
-            const animateParticles = () => {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                for (let i = 0; i < particleArray.length; i++) { // Using particleArray here
-                    const p = particleArray[i];
-                    p.x += p.vx;
-                    p.y += p.vy;
-                    p.life++;
-
-                    const alpha = 1 - (p.life / p.maxLife);
-                    const currentRadius = p.radius * Math.max(0.01, alpha);
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, currentRadius, 0, Math.PI * 2, false);
-                    ctx.fillStyle = `rgba(${p.color}, ${alpha})`;
-                    ctx.fill();
-
-                    if (p.life >= p.maxLife) {
-                        particleArray.splice(i, 1);
-                        i--;
-                    }
-                }
-                if (particleArray.length > 0) { // Check 'particleArray' length
-                    animationFrameId = requestAnimationFrame(animateParticles);
-                } else {
-                    animationFrameId = null; // Animation finished
-                }
-            };
-            animationFrameId = requestAnimationFrame(animateParticles); // Use general animationFrameId
-        }
-
-        let winRingAnimationTimeout = null;
-        function triggerWinRingAnimation() {
-            if (!winRingOverlay) {
-                console.warn("winRingOverlay element not found. Cannot trigger win ring animation.");
-                return;
-            }
-            // Clear any existing animation before starting a new one
-            if (winRingAnimationTimeout) clearTimeout(winRingAnimationTimeout);
-            
-            winRingOverlay.classList.remove('hidden');
-            // Remove and re-add the class to re-trigger the animation
-            winRingOverlay.classList.remove('win-ring');
-            void winRingOverlay.offsetWidth; // Trigger reflow to restart animation
-            winRingOverlay.classList.add('win-ring');
-
-            winRingAnimationTimeout = setTimeout(() => {
-                winRingOverlay.classList.add('hidden');
-            }, 1000); // Duration of the animation
-        }
-
-
-        // --- Authentication Event Handlers ---
-        async function handleEmailLogin() {
-            hideAuthMessage();
-            const email = emailInput.value;
-            const password = passwordInput.value;
-            if (!email || !password) {
-                showAuthMessage("Bitte E-Mail und Passwort eingeben.");
-                return;
-            }
-            try {
-                await signInWithEmailAndPassword(window.firebaseAuth, email, password);
-                // onAuthStateChanged will handle screen transition
-            } catch (error) {
-                showAuthMessage(error.message);
-            }
-        }
-
-        async function handleEmailSignup() {
-            hideAuthMessage();
-            const email = emailInput.value;
-            const password = passwordInput.value;
-            if (!email || !password) {
-                showAuthMessage("Bitte E-Mail und Passwort eingeben.");
-                return;
-            }
-            try {
-                await createUserWithEmailAndPassword(window.firebaseAuth, email, password);
-                // onAuthStateChanged will handle screen transition
-            } catch (error) {
-                showAuthMessage(error.message);
-            }
-        }
-
-        async function handleGoogleSignIn() {
-            hideAuthMessage();
-            const provider = new GoogleAuthProvider();
-            try {
-                await signInWithPopup(window.firebaseAuth, provider);
-                // onAuthStateChanged will handle screen transition
-            } catch (error) {
-                showAuthMessage(error.message);
-            }
-        }
-
-        async function handleSaveUsername() {
-            hideUsernameMessage();
-            const displayName = usernameInput.value.trim();
-            if (!displayName) {
-                showUsernameMessage("Bitte einen gültigen Namen eingeben.");
-                return;
-            }
-            if (!window.currentUserId || !window.firebaseDb) {
-                showUsernameMessage("Benutzer nicht angemeldet oder Firebase nicht bereit.");
-                return;
-            }
-
-            const friendCode = await generateFriendCode();
-            if (!friendCode) {
-                showUsernameMessage("Fehler beim Generieren des Freundes-Codes.");
-                return;
-            }
-
-            const profileDocRef = doc(window.firebaseDb, `artifacts/${getAppId()}/users/${window.currentUserId}/profile`, 'userProfile');
-            try {
-                await setDoc(profileDocRef, { displayName: displayName, friendCode: friendCode }, { merge: true });
-                window.userDisplayName = displayName;
-                window.userFriendCode = friendCode;
-                renderScreen('mainMenu'); // Go to main menu after saving name
-            } catch (error) {
-                showUsernameMessage("Fehler beim Speichern des Namens: " + error.message);
-            }
-        }
-
-        async function handleLogout() {
-            try {
-                await signOut(window.firebaseAuth);
-                // onAuthStateChanged will automatically redirect to auth screen
-                window.userRankPoints = 0; // Reset rank on logout
-                window.userRankName = 'Bronze';
-                window.userFriendCode = null; // Clear friend code on logout
-                updateStatusDisplay();
-            } catch (error) {
-                console.error("Error signing out:", error);
-            }
-        }
-
-        // --- Multiplayer Logic ---
-        async function createMultiplayerGame() {
-            hideMultiplayerLobbyMessage();
-            if (!window.userFriendCode || !window.userDisplayName) {
-                showMultiplayerLobbyMessage("Dein Freundes-Code oder Name ist nicht verfügbar. Bitte melde dich erneut an.", true);
-                return;
-            }
-
-            try {
-                const gameRef = doc(window.firebaseDb, `artifacts/${getAppId()}/games`, window.userFriendCode);
-                const gameDoc = await getDoc(gameRef);
-
-                if (gameDoc.exists()) {
-                    showMultiplayerLobbyMessage("Ein Spiel mit diesem Code existiert bereits. Bitte wähle 'Beitreten' oder starte ein anderes Spiel.", true);
-                    return;
-                }
-
-                const initialGameState = {
-                    players: {
-                        X: {
-                            uid: window.currentUserId,
-                            displayName: window.userDisplayName,
-                            friendCode: window.userFriendCode
-                        },
-                        O: null // Player O is waiting
-                    },
-                    board: Array(9).fill(null),
-                    currentPlayer: 'X',
-                    winner: null,
-                    winningLine: null,
-                    status: 'waiting', // 'waiting', 'playing', 'finished'
-                    createdAt: Date.now()
-                };
-
-                await setDoc(gameRef, initialGameState);
-                currentMultiplayerGameRef = gameRef;
-                isPlayerX = true;
-                showMultiplayerLobbyMessage(t().gameCreatedSuccess, false);
-                subscribeToGameSession(window.userFriendCode);
-
-            } catch (error) {
-                console.error("Error creating multiplayer game:", error);
-                showMultiplayerLobbyMessage("Fehler beim Erstellen des Spiels: " + error.message, true);
-            }
-        }
-
-        async function joinMultiplayerGame() {
-            hideMultiplayerLobbyMessage();
-            const friendCodeToJoin = friendCodeInput.value.trim().toUpperCase();
-            if (!friendCodeToJoin) {
-                showMultiplayerLobbyMessage("Bitte gib einen Freunde-Code ein.", true);
-                return;
-            }
-            if (!window.userFriendCode || !window.userDisplayName) {
-                showMultiplayerLobbyMessage("Dein Freundes-Code oder Name ist nicht verfügbar. Bitte melde dich erneut an.", true);
-                return;
-            }
-            if (friendCodeToJoin === window.userFriendCode) {
-                 showMultiplayerLobbyMessage("Du kannst keinem Spiel mit deinem eigenen Freundes-Code beitreten.", true);
-                 return;
-            }
-
-
-            try {
-                const gameRef = doc(window.firebaseDb, `artifacts/${getAppId()}/games`, friendCodeToJoin);
-                const gameDoc = await getDoc(gameRef);
-
-                if (!gameDoc.exists() || gameDoc.data().status === 'finished') {
-                    showMultiplayerLobbyMessage(t().gameNotFound, true);
-                    return;
-                }
-
-                const gameData = gameDoc.data();
-                if (gameData.players.O !== null) {
-                    showMultiplayerLobbyMessage(t().gameAlreadyStarted, true);
-                    return;
-                }
-
-                // Update game with Player O's info
-                await updateDoc(gameRef, {
-                    'players.O': {
-                        uid: window.currentUserId,
-                        displayName: window.userDisplayName,
-                        friendCode: window.userFriendCode
-                    },
-                    status: 'playing' // Start the game
-                });
-
-                currentMultiplayerGameRef = gameRef;
-                isPlayerX = false; // Current player is O
-                showMultiplayerLobbyMessage(t().gameJoinedSuccess, false);
-                subscribeToGameSession(friendCodeToJoin);
-
-            } catch (error) {
-                console.error("Error joining multiplayer game:", error);
-                showMultiplayerLobbyMessage("Fehler beim Beitreten des Spiels: " + error.message, true);
-            }
-        }
-
-        function subscribeToGameSession(gameId) {
-            if (gameSessionUnsubscribe) { // Unsubscribe from previous game session if any
-                gameSessionUnsubscribe();
-            }
-
-            currentMultiplayerGameRef = doc(window.firebaseDb, `artifacts/${getAppId()}/games`, gameId);
-            gameSessionUnsubscribe = onSnapshot(currentMultiplayerGameRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    board = data.board;
-                    currentPlayer = data.currentPlayer;
-                    winner = data.winner;
-                    winningLine = data.winningLine;
-                    gameMode = 'playerVsFriend'; // Ensure game mode is correct
-                    
-                    // Automatically transition to game screen if not already there and game is playing
-                    if (data.status === 'playing' && currentScreen !== 'game') {
-                        renderScreen('game');
-                        resetGameLocalState(); // Reset only local state, not the Firestore game
-                    } else if (data.status === 'waiting' && currentScreen !== 'multiplayerLobby') {
-                        renderScreen('multiplayerLobby');
-                    } else if (data.status === 'finished') {
-                        // Game ended, can show a message or transition back
-                    }
-
-                    renderBoard();
-                    updateStatusDisplay();
-                } else {
-                    console.log("Multiplayer game ended or not found (document deleted).");
-                    resetGame(); // Reset game state
-                    backToMainMenu(); // Go back to main menu
-                    showMultiplayerLobbyMessage("Das Multiplayer-Spiel wurde beendet.", true);
-                }
-            }, (error) => {
-                console.error("Error listening to game session:", error);
-                showMultiplayerLobbyMessage("Verbindungsproblem mit dem Spiel: " + error.message, true);
-                resetGame();
-                backToMainMenu();
-            });
-        }
-
-        async function updateGameSession(updates) {
-            if (currentMultiplayerGameRef) {
-                try {
-                    await updateDoc(currentMultiplayerGameRef, updates);
-                } catch (error) {
-                    console.error("Error updating game session:", error);
-                    showMultiplayerLobbyMessage("Fehler beim Aktualisieren des Spiels: " + error.message, true);
-                }
-            }
-        }
+        }; // Added semicolon
 
         // Resets local game state, not the Firestore document
         const resetGameLocalState = () => {
@@ -1420,7 +1005,7 @@
         };
 
         // --- Animation Functions ---
-        function drawWinningLine() {
+        const drawWinningLine = () => { // Changed to const arrow function
             if (!winningLine || !boardContainerDiv || !winningLineOverlay) {
                 if (winningLineOverlay) winningLineOverlay.style.opacity = '0';
                 return;
@@ -1477,12 +1062,12 @@
 
             // Particle animation
             startParticleAnimation();
-        }
+        }; // Added semicolon
 
         let particlesAnimationFrameId = null;
         let particleArray = [];
 
-        function startParticleAnimation() {
+        const startParticleAnimation = () => { // Changed to const arrow function
             if (particlesAnimationFrameId) cancelAnimationFrame(particlesAnimationFrameId); // Stop existing animation
 
             if (!canvas || !ctx || !boardContainerDiv || !winningLine) {
@@ -1549,10 +1134,10 @@
                 }
             };
             animationFrameId = requestAnimationFrame(animateParticles); // Use general animationFrameId
-        }
+        }; // Added semicolon
 
         let winRingAnimationTimeout = null;
-        function triggerWinRingAnimation() {
+        const triggerWinRingAnimation = () => { // Changed to const arrow function
             if (!winRingOverlay) {
                 console.warn("winRingOverlay element not found. Cannot trigger win ring animation.");
                 return;
@@ -1569,10 +1154,10 @@
             winRingAnimationTimeout = setTimeout(() => {
                 winRingOverlay.classList.add('hidden');
             }, 1000); // Duration of the animation
-        }
+        }; // Added semicolon
 
 
-        function renderBoard() {
+        const renderBoard = () => { // Changed to const arrow function
             if (!boardContainerDiv || !canvas || !winningLineOverlay || !winRingOverlay) {
                 console.error("Board rendering elements not found."); // Keep this error for critical missing elements
                 return;
@@ -1626,7 +1211,7 @@
             } else {
                 winningLineOverlay.style.opacity = '0';
             }
-        }
+        }; // Added semicolon
 
 
         // Initial render logic
@@ -1698,6 +1283,244 @@
                 ctx = canvas.getContext('2d');
             }
             
+            // --- Event Handlers (defined inside DOMContentLoaded to ensure scope) ---
+            const handleEmailLogin = async () => {
+                hideAuthMessage();
+                const email = emailInput.value;
+                const password = passwordInput.value;
+                if (!email || !password) {
+                    showAuthMessage("Bitte E-Mail und Passwort eingeben.");
+                    return;
+                }
+                try {
+                    await signInWithEmailAndPassword(window.firebaseAuth, email, password);
+                    // onAuthStateChanged will handle screen transition
+                } catch (error) {
+                    showAuthMessage(error.message);
+                }
+            };
+
+            const handleEmailSignup = async () => {
+                hideAuthMessage();
+                const email = emailInput.value;
+                const password = passwordInput.value;
+                if (!email || !password) {
+                    showAuthMessage("Bitte E-Mail und Passwort eingeben.");
+                    return;
+                }
+                try {
+                    await createUserWithEmailAndPassword(window.firebaseAuth, email, password);
+                    // onAuthStateChanged will handle screen transition
+                } catch (error) {
+                    showAuthMessage(error.message);
+                }
+            };
+
+            const handleGoogleSignIn = async () => {
+                hideAuthMessage();
+                const provider = new GoogleAuthProvider();
+                try {
+                    await signInWithPopup(window.firebaseAuth, provider);
+                    // onAuthStateChanged will handle screen transition
+                } catch (error) {
+                    showAuthMessage(error.message);
+                }
+            };
+
+            const handleSaveUsername = async () => {
+                hideUsernameMessage();
+                const displayName = usernameInput.value.trim();
+                if (!displayName) {
+                    showUsernameMessage("Bitte einen gültigen Namen eingeben.");
+                    return;
+                }
+                if (!window.currentUserId || !window.firebaseDb) {
+                    showUsernameMessage("Benutzer nicht angemeldet oder Firebase nicht bereit.");
+                    return;
+                }
+
+                const friendCode = await generateFriendCode();
+                if (!friendCode) {
+                    showUsernameMessage("Fehler beim Generieren des Freundes-Codes.");
+                    return;
+                }
+
+                const profileDocRef = doc(window.firebaseDb, `artifacts/${getAppId()}/users/${window.currentUserId}/profile`, 'userProfile');
+                try {
+                    await setDoc(profileDocRef, { displayName: displayName, friendCode: friendCode }, { merge: true });
+                    window.userDisplayName = displayName;
+                    window.userFriendCode = friendCode;
+                    renderScreen('mainMenu'); // Go to main menu after saving name
+                } catch (error) {
+                    showUsernameMessage("Fehler beim Speichern des Namens: " + error.message);
+                }
+            };
+
+            const handleLogout = async () => {
+                try {
+                    await signOut(window.firebaseAuth);
+                    // onAuthStateChanged will automatically redirect to auth screen
+                    window.userRankPoints = 0; // Reset rank on logout
+                    window.userRankName = 'Bronze';
+                    window.userFriendCode = null; // Clear friend code on logout
+                    updateStatusDisplay();
+                } catch (error) {
+                    console.error("Error signing out:", error);
+                }
+            };
+
+            // --- Multiplayer Logic (defined inside DOMContentLoaded) ---
+            const createMultiplayerGame = async () => {
+                hideMultiplayerLobbyMessage();
+                if (!window.userFriendCode || !window.userDisplayName) {
+                    showMultiplayerLobbyMessage("Dein Freundes-Code oder Name ist nicht verfügbar. Bitte melde dich erneut an.", true);
+                    return;
+                }
+
+                try {
+                    const gameRef = doc(window.firebaseDb, `artifacts/${getAppId()}/games`, window.userFriendCode);
+                    const gameDoc = await getDoc(gameRef);
+
+                    if (gameDoc.exists()) {
+                        showMultiplayerLobbyMessage("Ein Spiel mit diesem Code existiert bereits. Bitte wähle 'Beitreten' oder starte ein anderes Spiel.", true);
+                        return;
+                    }
+
+                    const initialGameState = {
+                        players: {
+                            X: {
+                                uid: window.currentUserId,
+                                displayName: window.userDisplayName,
+                                friendCode: window.userFriendCode
+                            },
+                            O: null // Player O is waiting
+                        },
+                        board: Array(9).fill(null),
+                        currentPlayer: 'X',
+                        winner: null,
+                        winningLine: null,
+                        status: 'waiting', // 'waiting', 'playing', 'finished'
+                        createdAt: Date.now()
+                    };
+
+                    await setDoc(gameRef, initialGameState);
+                    currentMultiplayerGameRef = gameRef;
+                    isPlayerX = true;
+                    showMultiplayerLobbyMessage(t().gameCreatedSuccess, false);
+                    subscribeToGameSession(window.userFriendCode);
+
+                } catch (error) {
+                    console.error("Error creating multiplayer game:", error);
+                    showMultiplayerLobbyMessage("Fehler beim Erstellen des Spiels: " + error.message, true);
+                }
+            };
+
+            const joinMultiplayerGame = async () => {
+                hideMultiplayerLobbyMessage();
+                const friendCodeToJoin = friendCodeInput.value.trim().toUpperCase();
+                if (!friendCodeToJoin) {
+                    showMultiplayerLobbyMessage("Bitte gib einen Freunde-Code ein.", true);
+                    return;
+                }
+                if (!window.userFriendCode || !window.userDisplayName) {
+                    showMultiplayerLobbyMessage("Dein Freundes-Code oder Name ist nicht verfügbar. Bitte melde dich erneut an.", true);
+                    return;
+                }
+                if (friendCodeToJoin === window.userFriendCode) {
+                     showMultiplayerLobbyMessage("Du kannst keinem Spiel mit deinem eigenen Freundes-Code beitreten.", true);
+                     return;
+                }
+
+
+                try {
+                    const gameRef = doc(window.firebaseDb, `artifacts/${getAppId()}/games`, friendCodeToJoin);
+                    const gameDoc = await getDoc(gameRef);
+
+                    if (!gameDoc.exists() || gameDoc.data().status === 'finished') {
+                        showMultiplayerLobbyMessage(t().gameNotFound, true);
+                        return;
+                    }
+
+                    const gameData = gameDoc.data();
+                    if (gameData.players.O !== null) {
+                        showMultiplayerLobbyMessage(t().gameAlreadyStarted, true);
+                        return;
+                    }
+
+                    // Update game with Player O's info
+                    await updateDoc(gameRef, {
+                        'players.O': {
+                            uid: window.currentUserId,
+                            displayName: window.userDisplayName,
+                            friendCode: window.userFriendCode
+                        },
+                        status: 'playing' // Start the game
+                    });
+
+                    currentMultiplayerGameRef = gameRef;
+                    isPlayerX = false; // Current player is O
+                    showMultiplayerLobbyMessage(t().gameJoinedSuccess, false);
+                    subscribeToGameSession(friendCodeToJoin);
+
+                } catch (error) {
+                    console.error("Error joining multiplayer game:", error);
+                    showMultiplayerLobbyMessage("Fehler beim Beitreten des Spiels: " + error.message, true);
+                }
+            };
+
+            const subscribeToGameSession = (gameId) => {
+                if (gameSessionUnsubscribe) { // Unsubscribe from previous game session if any
+                    gameSessionUnsubscribe();
+                }
+
+                currentMultiplayerGameRef = doc(window.firebaseDb, `artifacts/${getAppId()}/games`, gameId);
+                gameSessionUnsubscribe = onSnapshot(currentMultiplayerGameRef, (docSnap) => {
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        board = data.board;
+                        currentPlayer = data.currentPlayer;
+                        winner = data.winner;
+                        winningLine = data.winningLine;
+                        gameMode = 'playerVsFriend'; // Ensure game mode is correct
+                        
+                        // Automatically transition to game screen if not already there and game is playing
+                        if (data.status === 'playing' && currentScreen !== 'game') {
+                            renderScreen('game');
+                            resetGameLocalState(); // Reset only local state, not the Firestore game
+                        } else if (data.status === 'waiting' && currentScreen !== 'multiplayerLobby') {
+                            renderScreen('multiplayerLobby');
+                        } else if (data.status === 'finished') {
+                            // Game ended, can show a message or transition back
+                        }
+
+                        renderBoard();
+                        updateStatusDisplay();
+                    } else {
+                        console.log("Multiplayer game ended or not found (document deleted).");
+                        resetGame(); // Reset game state
+                        backToMainMenu(); // Go back to main menu
+                        showMultiplayerLobbyMessage("Das Multiplayer-Spiel wurde beendet.", true);
+                    }
+                }, (error) => {
+                    console.error("Error listening to game session:", error);
+                    showMultiplayerLobbyMessage("Verbindungsproblem mit dem Spiel: " + error.message, true);
+                    resetGame();
+                    backToMainMenu();
+                });
+            };
+
+            const updateGameSession = async (updates) => {
+                if (currentMultiplayerGameRef) {
+                    try {
+                        await updateDoc(currentMultiplayerGameRef, updates);
+                    } catch (error) {
+                        console.error("Error updating game session:", error);
+                        showMultiplayerLobbyMessage("Fehler beim Aktualisieren des Spiels: " + error.message, true);
+                    }
+                }
+            };
+            // --- End of Event Handlers ---
+
             // --- Event Listeners ---
             if (playerVsPlayerBtn) {
                 playerVsPlayerBtn.addEventListener('click', () => {
