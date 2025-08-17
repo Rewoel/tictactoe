@@ -127,9 +127,21 @@
 
     <!-- Firebase SDKs & Game Logic Script -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        // Firebase Konfiguration (von dir bereitgestellt)
+        const firebaseConfig = {
+            apiKey: "AIzaSyChEMvK_piOrCo9cYtt_mMDTjXd2R4_rU8",
+            authDomain: "tictactoe-df871.firebaseapp.com",
+            projectId: "tictactoe-df871",
+            storageBucket: "tictactoe-df871.firebasestorage.app",
+            messagingSenderId: "775114552044",
+            appId: "1:775114552044:web:1c7198437e8b275ef66bc9",
+            measurementId: "G-5030B21QRX"
+        };
+
+        // Firebase SDK Imports (aktualisiert auf Version 12.1.0)
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
         // Globale Firebase-Variablen
         window.firebaseApp = null;
@@ -142,17 +154,13 @@
 
         // Hilfsfunktion, um die Firebase Konfiguration zu laden.
         const getFirebaseConfig = () => {
-            try {
-                return JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-            } catch (e) {
-                console.error("Error parsing Firebase config:", e);
-                return {};
-            }
+            return firebaseConfig; // Direkt die bereitgestellte Konfiguration zurückgeben
         };
 
         // Hilfsfunktion, um die App-ID zu bekommen.
+        // Für statische Bereitstellungen verwenden wir projectId als App ID für den Firestore-Pfad
         const getAppId = () => {
-            return typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+            return firebaseConfig.projectId;
         };
 
         // Translations (globally accessible)
@@ -242,7 +250,7 @@
             // Ensure elements are not null before accessing properties
             if (gameTitleDisplay) gameTitleDisplay.textContent = t().gameTitle;
             if (playerVsPlayerBtn) playerVsPlayerBtn.textContent = t().playerVsPlayer;
-            if (playerVsBotBtn) playerVsBotBtn.textContent = t().playerVsBot; // Corrected: Use t().playerVsBot
+            if (playerVsBotBtn) playerVsBotBtn.textContent = t().playerVsBot;
             if (newGameBtn) newGameBtn.textContent = t().newGame;
             if (backToMenuBtn) backToMenuBtn.textContent = t().backToMenu;
             if (botThinkingText) botThinkingText.textContent = t().botThinking;
@@ -250,7 +258,7 @@
             if (currentLanguageDisplay) currentLanguageDisplay.textContent = language.toUpperCase();
             if (rankOverlayTitle) rankOverlayTitle.textContent = t().yourRank;
             if (prevRankText) prevRankText.textContent = t().previousRank + ": ";
-            if (newRankText) newRankText.textContent = t().newRank + ": "; // This now refers to the span within the overlay
+            if (newRankText) newRankText.textContent = t().newRank + ": ";
             updateStatusDisplay(); // Also update status display with new language
         }
 
@@ -285,17 +293,14 @@
         // --- Firebase-related Functions ---
         window.initializeFirebase = async () => {
             try {
-                const firebaseConfig = getFirebaseConfig();
-                window.firebaseApp = initializeApp(firebaseConfig);
+                const fConfig = getFirebaseConfig(); // Use fConfig for the local constant
+                window.firebaseApp = initializeApp(fConfig);
                 window.firebaseAuth = getAuth(window.firebaseApp);
                 window.firebaseDb = getFirestore(window.firebaseApp);
 
-                let currentAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-                if (currentAuthToken) {
-                    await signInWithCustomToken(window.firebaseAuth, currentAuthToken);
-                } else {
-                    await signInAnonymously(window.firebaseAuth);
-                }
+                // Im GitHub Pages-Kontext wird __initial_auth_token nicht gesetzt sein,
+                // daher melden wir uns immer anonym an.
+                await signInAnonymously(window.firebaseAuth);
 
                 onAuthStateChanged(window.firebaseAuth, (user) => {
                     if (user) {
@@ -871,4 +876,3 @@
     </script>
 </body>
 </html>
-
