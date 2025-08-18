@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tic Tac Toe</title>
+    <title>Retro Tic Tac Toe</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -85,14 +85,14 @@
             <div id="rank-progress-bar-fill" class="bg-yellow-400 h-2 rounded-full transition-all duration-300 ease-out" style="width: 0%;"></div>
         </div>
         <div class="text-xs text-gray-400 text-right mt-1" id="rank-points-in-profile">0/100 Pkt.</div>
-        <!-- NEU: Freunde-Code im Profil -->
-        <div class="text-xs text-gray-400 mt-2" id="profile-friend-code-display">Code: LÄDT...</div>
+        <!-- Freunde-Code im Profil (jetzt nur noch Name, Rang, Fortschritt) -->
+        <!-- <div class="text-xs text-gray-400 mt-2" id="profile-friend-code-display">Code: LÄDT...</div> -->
     </div>
 
     <!-- NEU: Profil-Übersichts-Modal -->
     <div id="profile-overview-modal" class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 backdrop-blur-lg-custom hidden">
         <div class="bg-gray-700 p-8 rounded-lg shadow-2xl border-4 border-yellow-400 max-w-sm w-full text-center relative">
-            <button id="close-profile-modal-btn" class="absolute top-3 right-3 text-gray-400 hover:text-white text-3xl font-bold">&times;</button>
+            <!-- X-Button entfernt -->
             <h2 class="text-3xl font-extrabold text-white mb-6">Dein Profil</h2>
             
             <div class="mb-4">
@@ -111,7 +111,10 @@
 
             <div class="mb-6">
                 <p class="text-gray-300 text-lg">Freunde-Code:</p>
-                <p id="modal-friend-code" class="text-purple-300 text-2xl font-bold break-all">LÄDT...</p>
+                <p id="modal-friend-code" class="text-purple-300 text-xl font-bold break-all cursor-pointer hover:underline">
+                    Klicken zum Anzeigen & Kopieren
+                </p>
+                <span id="copy-status-message" class="text-xs text-green-400 mt-1 hidden"></span>
             </div>
         </div>
     </div>
@@ -334,11 +337,9 @@
                 logoutBtn: "Abmelden",
                 loggedInAs: "Angemeldet als:",
                 multiplayerLobbyTitle: "Multiplayer Lobby", // Neu
-                yourCodeText: "Dein Freunde-Code:", // Neu
                 friendCodeInputPlaceholder: "Freunde-Code eingeben", // Neu
                 joinGameBtn: "Spiel beitreten", // Neu
                 orCreateGameText: "- ODER -", // Neu
-                createMultiplayerGameBtn: "Neues Multiplayer-Spiel starten", // Neu (Jetzt entfernt)
                 lobbyMessageWaiting: "Warte auf Spieler O...", // Neu
                 lobbyMessageJoined: "Spiel beigetreten. Warte auf Start...", // Neu
                 lobbyMessageError: "Fehler in der Lobby: ", // Neu
@@ -358,6 +359,8 @@
                 friendCodeNotFound: "Freunde-Code nicht gefunden.", // Neu
                 inviteSent: "Einladung gesendet!", // Neu
                 inviteFailed: "Einladung konnte nicht gesendet werden.", // Neu
+                clickToShowCode: "Klicken zum Anzeigen & Kopieren", // NEU
+                codeCopied: "Kopiert!", // NEU
             },
             en: {
                 gameTitle: "Tic Tac Toe",
@@ -396,11 +399,9 @@
                 logoutBtn: "Log Out",
                 loggedInAs: "Logged in as:",
                 multiplayerLobbyTitle: "Multiplayer Lobby", // New
-                yourCodeText: "Your Friend Code:", // New
                 friendCodeInputPlaceholder: "Enter Friend Code", // New
                 joinGameBtn: "Join Game", // New
                 orCreateGameText: "- OR -", // New
-                createMultiplayerGameBtn: "Start New Multiplayer Game", // New (Now removed)
                 lobbyMessageWaiting: "Waiting for Player O...", // New
                 lobbyMessageJoined: "Game joined. Waiting for start...", // New
                 lobbyMessageError: "Lobby Error: ", // New
@@ -420,6 +421,8 @@
                 friendCodeNotFound: "Friend code not found.", // New
                 inviteSent: "Invitation sent!", // New
                 inviteFailed: "Failed to send invitation.", // New
+                clickToShowCode: "Click to show & copy code", // NEU
+                codeCopied: "Copied!", // NEU
             },
         };
 
@@ -448,11 +451,13 @@
             authScreenDiv, emailInput, passwordInput, loginBtn, signupBtn, googleSignInBtn, authMessageDisplay, authOrText,
             usernameScreenDiv, usernameInput, saveUsernameBtn, usernameMessageDisplay,
             authTitleDisplay, usernameTitleDisplay, usernamePromptDisplay, logoutBtn,
-            profileDisplay, usernameInProfile, rankNameInProfile, rankProgressBarFill, rankPointsInProfile, profileFriendCodeDisplay, // NEU
+            profileDisplay, usernameInProfile, rankNameInProfile, rankProgressBarFill, rankPointsInProfile, // profileFriendCodeDisplay entfernt
             multiplayerLobbyScreen, multiplayerLobbyTitle, yourCodeText, yourFriendCodeDisplay, friendCodeInput, joinFriendGameBtn, orCreateGameText, multiplayerLobbyMessage, backFromLobbyBtn, // createMultiplayerGameBtn entfernt
             friendCodeToAddInput, addFriendBtn, addFriendMessage, friendsListContainer, noFriendsMessage, friendsListMessage, // NEU Freundschaftssystem
-            profileOverviewModal, closeProfileModalBtn, modalUsername, modalRankName, modalRankProgressBarFill, modalRankPoints, modalFriendCode; // NEU Profil-Modal Elemente
+            profileOverviewModal, modalUsername, modalRankName, modalRankProgressBarFill, modalRankPoints, modalFriendCode, copyStatusMessage; // NEU Profil-Modal Elemente
 
+        // Zustand für Freundescode-Anzeige im Modal
+        let isFriendCodeRevealed = false; 
 
         // --- Utility Functions ---
         // Get current translation object
@@ -522,7 +527,7 @@
             // Auth Screen
             if (authTitleDisplay) authTitleDisplay.textContent = t().authTitle;
             if (emailInput) emailInput.placeholder = t().emailPlaceholder;
-            if (passwordInput) passwordInput.placeholder = t().passwordPlaceholder; // Corrected placeholder
+            if (passwordInput) passwordInput.placeholder = t().passwordPlaceholder; 
             if (loginBtn) loginBtn.textContent = t().loginBtn;
             if (signupBtn) signupBtn.textContent = t().signupBtn;
             if (authOrText) authOrText.textContent = t().or;
@@ -545,6 +550,13 @@
             if (friendCodeToAddInput) friendCodeToAddInput.placeholder = t().friendCodeInputPlaceholder;
             if (addFriendBtn) addFriendBtn.textContent = t().addFriendBtn;
             if (noFriendsMessage) noFriendsMessage.textContent = t().noFriendsMessage;
+            
+            // NEU: Profil-Modal Freunde-Code-Anzeige
+            if (modalFriendCode && !isFriendCodeRevealed) {
+                modalFriendCode.textContent = t().clickToShowCode;
+            } else if (modalFriendCode && isFriendCodeRevealed) {
+                modalFriendCode.textContent = window.userFriendCode || 'N/A';
+            }
         };
 
         const updateStatusDisplay = () => {
@@ -584,6 +596,7 @@
             }
 
             // Update profile display (top-left corner)
+            // Freunde-Code im oberen linken Profilfeld wird jetzt nicht mehr angezeigt.
             if (profileDisplay && window.isFirebaseReady) {
                 if (usernameInProfile) usernameInProfile.textContent = window.userDisplayName || 'Gast';
                 if (rankNameInProfile) rankNameInProfile.textContent = window.userRankName;
@@ -598,10 +611,6 @@
                 if (rankProgressBarFill) {
                     const progress = getRankProgressDetails(window.userRankPoints);
                     rankProgressBarFill.style.width = `${progress.progressPercentage}%`;
-                }
-                // NEU: Freunde-Code im Profil aktualisieren
-                if (profileFriendCodeDisplay) {
-                    profileFriendCodeDisplay.textContent = `Code: ${window.userFriendCode || 'N/A'}`;
                 }
                 profileDisplay.classList.remove('hidden'); // Ensure profile display is shown if ready
             } else if (profileDisplay) {
@@ -618,7 +627,6 @@
         const updateProfileModalContent = () => {
             if (modalUsername) modalUsername.textContent = window.userDisplayName || 'Gast';
             if (modalRankName) modalRankName.textContent = window.userRankName;
-            if (modalFriendCode) modalFriendCode.textContent = window.userFriendCode || 'N/A';
             if (modalRankPoints) {
                 const progress = getRankProgressDetails(window.userRankPoints);
                 if (progress.pointsToNextRank === 0) {
@@ -630,6 +638,15 @@
             if (modalRankProgressBarFill) {
                 const progress = getRankProgressDetails(window.userRankPoints);
                 modalRankProgressBarFill.style.width = `${progress.progressPercentage}%`;
+            }
+
+            // NEU: Logik für Freundescode-Anzeige im Modal
+            if (modalFriendCode) {
+                if (isFriendCodeRevealed) {
+                    modalFriendCode.textContent = window.userFriendCode || 'N/A';
+                } else {
+                    modalFriendCode.textContent = t().clickToShowCode;
+                }
             }
         };
 
@@ -734,6 +751,7 @@
                 clearInterval(presenceUpdateInterval);
                 presenceUpdateInterval = null;
             }
+            isFriendCodeRevealed = false; // Zurücksetzen des Zustands beim Schließen des Modals/Wechseln des Bildschirms
 
             switch (screenName) {
                 case 'auth':
@@ -1447,7 +1465,7 @@
             rankNameInProfile = document.getElementById('rank-name-in-profile');
             rankProgressBarFill = document.getElementById('rank-progress-bar-fill');
             rankPointsInProfile = document.getElementById('rank-points-in-profile');
-            profileFriendCodeDisplay = document.getElementById('profile-friend-code-display'); // NEU
+            // profileFriendCodeDisplay = document.getElementById('profile-friend-code-display'); // Removed from direct assignment as it's not used directly anymore
 
             // Multiplayer Lobby elements
             multiplayerLobbyScreen = document.getElementById('multiplayer-lobby-screen');
@@ -1469,12 +1487,13 @@
 
             // NEU: Profil-Modal Elemente
             profileOverviewModal = document.getElementById('profile-overview-modal');
-            closeProfileModalBtn = document.getElementById('close-profile-modal-btn');
+            // closeProfileModalBtn = document.getElementById('close-profile-modal-btn'); // Removed this button
             modalUsername = document.getElementById('modal-username');
             modalRankName = document.getElementById('modal-rank-name');
             modalRankProgressBarFill = document.getElementById('modal-rank-progress-bar-fill');
             modalRankPoints = document.getElementById('modal-rank-points');
             modalFriendCode = document.getElementById('modal-friend-code');
+            copyStatusMessage = document.getElementById('copy-status-message');
 
 
             canvas = document.getElementById('particles-canvas');
@@ -1976,14 +1995,61 @@
             if (profileDisplay) {
                 profileDisplay.addEventListener('click', () => {
                     if (window.isFirebaseReady && window.userDisplayName) {
+                        isFriendCodeRevealed = false; // Code ist beim Öffnen des Modals immer zuerst versteckt
                         updateProfileModalContent(); // Aktualisiere den Inhalt vor dem Anzeigen
                         profileOverviewModal.classList.remove('hidden');
                     }
                 });
             }
-            if (closeProfileModalBtn) {
-                closeProfileModalBtn.addEventListener('click', () => {
-                    profileOverviewModal.classList.add('hidden');
+            // NEU: Klick außerhalb des Modals zum Schließen
+            if (profileOverviewModal) {
+                profileOverviewModal.addEventListener('click', (event) => {
+                    // Prüfen, ob der Klick direkt auf dem Modal-Hintergrund war und nicht auf dem Inhalt
+                    if (event.target === profileOverviewModal) {
+                        profileOverviewModal.classList.add('hidden');
+                    }
+                });
+            }
+
+            // NEU: Event Listener für Freundescode im Modal (Anzeigen und Kopieren)
+            if (modalFriendCode) {
+                modalFriendCode.addEventListener('click', async () => {
+                    if (!isFriendCodeRevealed) {
+                        isFriendCodeRevealed = true;
+                        updateProfileModalContent(); // Zeigt den Code an
+                        // Code sofort kopieren
+                        try {
+                            if (window.userFriendCode) {
+                                document.execCommand('copy'); // Fallback for clipboard API restrictions in iframe
+                                // Fallback: Create a temporary textarea to copy text if native Clipboard API doesn't work
+                                const tempTextArea = document.createElement('textarea');
+                                tempTextArea.value = window.userFriendCode;
+                                document.body.appendChild(tempTextArea);
+                                tempTextArea.select();
+                                document.execCommand('copy');
+                                document.body.removeChild(tempTextArea);
+
+                                if (copyStatusMessage) {
+                                    copyStatusMessage.textContent = t().codeCopied;
+                                    copyStatusMessage.classList.remove('hidden');
+                                    setTimeout(() => {
+                                        copyStatusMessage.classList.add('hidden');
+                                    }, 2000); // Nachricht nach 2 Sekunden ausblenden
+                                }
+                            }
+                        } catch (err) {
+                            console.error('Kopieren fehlgeschlagen:', err);
+                            if (copyStatusMessage) {
+                                copyStatusMessage.textContent = "Kopieren fehlgeschlagen!";
+                                copyStatusMessage.classList.remove('hidden');
+                                copyStatusMessage.classList.add('text-red-400');
+                                setTimeout(() => {
+                                    copyStatusMessage.classList.add('hidden');
+                                    copyStatusMessage.classList.remove('text-red-400');
+                                }, 2000);
+                            }
+                        }
+                    }
                 });
             }
 
