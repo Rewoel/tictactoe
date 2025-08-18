@@ -452,7 +452,7 @@
             usernameScreenDiv, usernameInput, saveUsernameBtn, usernameMessageDisplay,
             authTitleDisplay, usernameTitleDisplay, usernamePromptDisplay, logoutBtn,
             profileDisplay, usernameInProfile, rankNameInProfile, rankProgressBarFill, rankPointsInProfile, // profileFriendCodeDisplay entfernt
-            multiplayerLobbyScreen, multiplayerLobbyTitle, yourCodeText, yourFriendCodeDisplay, friendCodeInput, joinFriendGameBtn, orCreateGameText, multiplayerLobbyMessage, backFromLobbyBtn, // createMultiplayerGameBtn entfernt
+            multiplayerLobbyScreen, multiplayerLobbyTitle, friendCodeInput, joinFriendGameBtn, orCreateGameText, multiplayerLobbyMessage, backFromLobbyBtn, // createMultiplayerGameBtn entfernt
             friendCodeToAddInput, addFriendBtn, addFriendMessage, friendsListContainer, noFriendsMessage, friendsListMessage, // NEU Freundschaftssystem
             profileOverviewModal, modalUsername, modalRankName, modalRankProgressBarFill, modalRankPoints, modalFriendCode, copyStatusMessage; // NEU Profil-Modal Elemente
 
@@ -541,8 +541,6 @@
 
             // Multiplayer Lobby Screen
             if (multiplayerLobbyTitle) multiplayerLobbyTitle.textContent = t().multiplayerLobbyTitle;
-            if (yourCodeText) yourCodeText.textContent = t().yourCodeText;
-            if (yourFriendCodeDisplay) yourFriendCodeDisplay.textContent = window.userFriendCode || 'LÄDT...';
             if (friendCodeInput) friendCodeInput.placeholder = t().friendCodeInputPlaceholder; // Jetzt "Spiel-Code eingeben"
             if (joinFriendGameBtn) joinFriendGameBtn.textContent = t().joinGameBtn;
             if (orCreateGameText) orCreateGameText.textContent = t().orCreateGameText;
@@ -808,7 +806,8 @@
                     }
                     updateStatusDisplay(); // Update UI
                 });
-            } catch (error) {
+            }
+            catch (error) {
                 console.error("Firebase Initialization Error:", error);
                 window.isFirebaseReady = false;
                 showAuthMessage("Firebase-Initialisierungsfehler: " + error.message);
@@ -1041,7 +1040,7 @@
                     });
                 } else {
                     // It's not your turn
-                    showMultiplayerLobbyMessage("Warte auf den Zug des anderen Spielers.", false);
+                    showMultiplayerLobbyMessage(t().lobbyMessageWaiting, false); // Übersetzt
                 }
                 return; // Exit as logic is handled by Firestore listener
             }
@@ -1470,8 +1469,7 @@
             // Multiplayer Lobby elements
             multiplayerLobbyScreen = document.getElementById('multiplayer-lobby-screen');
             multiplayerLobbyTitle = document.getElementById('multiplayer-lobby-title');
-            yourCodeText = document.getElementById('your-code-text');
-            yourFriendCodeDisplay = document.getElementById('your-friend-code');
+            // 'yourCodeText' and 'yourFriendCodeDisplay' are not used in lobby, removed from direct assignment
             friendCodeInput = document.getElementById('friend-code-input');
             joinFriendGameBtn = document.getElementById('join-friend-game-btn');
             orCreateGameText = document.getElementById('or-create-game-text');
@@ -1507,7 +1505,7 @@
                 const email = emailInput.value;
                 const password = passwordInput.value;
                 if (!email || !password) {
-                    showAuthMessage("Bitte E-Mail und Passwort eingeben.");
+                    showAuthMessage(t().authError + "Bitte E-Mail und Passwort eingeben."); // Übersetzt
                     return;
                 }
                 try {
@@ -1523,7 +1521,7 @@
                 const email = emailInput.value;
                 const password = passwordInput.value;
                 if (!email || !password) {
-                    showAuthMessage("Bitte E-Mail und Passwort eingeben.");
+                    showAuthMessage(t().authError + "Bitte E-Mail und Passwort eingeben."); // Übersetzt
                     return;
                 }
                 try {
@@ -1549,17 +1547,17 @@
                 hideUsernameMessage();
                 const displayName = usernameInput.value.trim();
                 if (!displayName) {
-                    showUsernameMessage("Bitte einen gültigen Namen eingeben.");
+                    showUsernameMessage(t().usernameError + "Bitte einen gültigen Namen eingeben."); // Übersetzt
                     return;
                 }
                 if (!window.currentUserId || !window.firebaseDb) {
-                    showUsernameMessage("Benutzer nicht angemeldet oder Firebase nicht bereit.");
+                    showUsernameMessage(t().usernameError + "Benutzer nicht angemeldet oder Firebase nicht bereit."); // Übersetzt
                     return;
                 }
 
                 const friendCode = await generateFriendCode();
                 if (!friendCode) {
-                    showUsernameMessage("Fehler beim Generieren des Freundes-Codes.");
+                    showUsernameMessage(t().usernameError + "Fehler beim Generieren des Freundes-Codes."); // Übersetzt
                     return;
                 }
 
@@ -1573,7 +1571,7 @@
                     window.userFriendCode = friendCode;
                     renderScreen('mainMenu'); // Go to main menu after saving name
                 } catch (error) {
-                    showUsernameMessage("Fehler beim Speichern des Namens: " + error.message);
+                    showUsernameMessage(t().usernameError + "Fehler beim Speichern des Namens: " + error.message); // Übersetzt
                 }
             };
 
@@ -1596,7 +1594,7 @@
                 const codeToAdd = friendCodeToAddInput.value.trim().toUpperCase();
 
                 if (!codeToAdd) {
-                    showAddFriendMessage("Bitte einen Freundes-Code eingeben.", true);
+                    showAddFriendMessage(t().addFriendError + "Bitte einen Freundes-Code eingeben.", true); // Übersetzt
                     return;
                 }
                 if (codeToAdd === window.userFriendCode) {
@@ -1605,7 +1603,7 @@
                 }
 
                 if (!window.currentUserId || !window.firebaseDb) {
-                    showAddFriendMessage("Benutzer nicht angemeldet oder Firebase nicht bereit.", true);
+                    showAddFriendMessage(t().addFriendError + "Benutzer nicht angemeldet oder Firebase nicht bereit.", true); // Übersetzt
                     return;
                 }
 
@@ -1632,7 +1630,7 @@
                     const friendProfileDocRef = doc(window.firebaseDb, `artifacts/${getAppId()}/users/${friendUid}/profile`, 'userProfile');
                     const friendProfileSnap = await getDoc(friendProfileDocRef);
                     if (!friendProfileSnap.exists() || !friendProfileSnap.data().displayName) {
-                        showAddFriendMessage("Freundesprofil nicht gefunden oder unvollständig.", true);
+                        showAddFriendMessage(t().addFriendError + "Freundesprofil nicht gefunden oder unvollständig.", true); // Übersetzt
                         return;
                     }
                     const friendDisplayName = friendProfileSnap.data().displayName;
@@ -1656,7 +1654,7 @@
                     friendCodeToAddInput.value = ''; // Eingabefeld leeren
                 } catch (error) {
                     console.error("Error adding friend:", error);
-                    showAddFriendMessage(error.message, true);
+                    showAddFriendMessage(t().addFriendError + error.message, true); // Übersetzt
                 }
             };
 
@@ -1737,13 +1735,13 @@
                     renderFriendsList(friendsData);
                 }, (error) => {
                     console.error("Error listening to friends list:", error);
-                    showFriendsListMessage("Fehler beim Laden der Freundesliste.", true);
+                    showFriendsListMessage(t().addFriendError + "Fehler beim Laden der Freundesliste.", true); // Übersetzt
                 });
             };
 
             // NEU: Funktion zum Senden einer Spiel-Einladung
             const sendGameInvitation = async (invitedFriendUid) => {
-                showFriendsListMessage("Sende Einladung...", false);
+                showFriendsListMessage(t().inviteSent + "...", false); // Übersetzt
                 if (!window.currentUserId || !window.userDisplayName || !invitedFriendUid || !window.firebaseDb) {
                     showFriendsListMessage(t().inviteFailed + " (Fehlende Daten)", true);
                     return;
@@ -1813,11 +1811,11 @@
                 hideMultiplayerLobbyMessage();
                 const gameCodeToJoin = friendCodeInput.value.trim(); // Jetzt ist es der Game-Code, nicht unbedingt ein Freundes-Code
                 if (!gameCodeToJoin) {
-                    showMultiplayerLobbyMessage("Bitte einen Spiel-Code eingeben.", true);
+                    showMultiplayerLobbyMessage(t().multiplayerLobbyTitle + "Bitte einen Spiel-Code eingeben.", true); // Übersetzt
                     return;
                 }
                 if (!window.userDisplayName) {
-                    showMultiplayerLobbyMessage("Dein Name ist nicht verfügbar. Bitte melde dich erneut an.", true);
+                    showMultiplayerLobbyMessage(t().multiplayerLobbyTitle + "Dein Name ist nicht verfügbar. Bitte melde dich erneut an.", true); // Übersetzt
                     return;
                 }
 
@@ -1836,7 +1834,7 @@
                         return;
                     }
                     if (gameData.players.X && gameData.players.X.uid === window.currentUserId) { // Prüfe, ob Spieler X selbst beitreten möchte
-                        showMultiplayerLobbyMessage("Du bist bereits Spieler X in diesem Spiel.", true);
+                        showMultiplayerLobbyMessage(t().multiplayerLobbyTitle + "Du bist bereits Spieler X in diesem Spiel.", true); // Übersetzt
                         // Könnte hier zum Spiel wechseln statt Fehlermeldung
                         currentMultiplayerGameRef = gameRef;
                         isPlayerX = true;
@@ -1861,7 +1859,7 @@
 
                 } catch (error) {
                     console.error("Error joining multiplayer game:", error);
-                    showMultiplayerLobbyMessage("Fehler beim Beitreten des Spiels: " + error.message, true);
+                    showMultiplayerLobbyMessage(t().multiplayerLobbyTitle + "Fehler beim Beitreten des Spiels: " + error.message, true); // Übersetzt
                 }
             };
 
@@ -1896,18 +1894,18 @@
                             // Wenn dies eine Einladung für diesen Benutzer ist
                             if (data.players.O && data.players.O.uid === window.currentUserId && currentScreen !== 'game') {
                                 // Hier könnte man eine Benachrichtigung anzeigen und einen Button zum Akzeptieren
-                                showMultiplayerLobbyMessage(`Du wurdest von ${data.players.X.displayName} zu einem Spiel eingeladen! Tritt bei mit Code: ${gameId}`, false);
+                                showMultiplayerLobbyMessage(`${t().multiplayerLobbyTitle}Du wurdest von ${data.players.X.displayName} zu einem Spiel eingeladen! Tritt bei mit Code: ${gameId}`, false); // Übersetzt
                                 // Setze das Eingabefeld mit dem Code voraus
                                 friendCodeInput.value = gameId;
                             } else if (data.players.X && data.players.X.uid === window.currentUserId && currentScreen !== 'game') {
                                 // Du bist der Einladende, warte auf den Freund
-                                showMultiplayerLobbyMessage(`Einladung an ${data.players.O.displayName || 'deinen Freund'} gesendet. Warte auf Annahme...`, false);
+                                showMultiplayerLobbyMessage(`${t().multiplayerLobbyTitle}Einladung an ${data.players.O.displayName || 'deinen Freund'} gesendet. Warte auf Annahme...`, false); // Übersetzt
                                 renderScreen('multiplayerLobby'); // Bleibe in der Lobby
                             }
                         } else if (data.status === 'finished') {
                             // Game ended, can show a message or transition back
                             console.log("Multiplayer game finished.");
-                            showMultiplayerLobbyMessage(`Spiel beendet. Gewinner: ${data.winner || 'Unentschieden'}`, false);
+                            showMultiplayerLobbyMessage(`${t().multiplayerLobbyTitle}Spiel beendet. Gewinner: ${data.winner || 'Unentschieden'}`, false); // Übersetzt
                         }
 
                         renderBoard();
@@ -1916,11 +1914,11 @@
                         console.log("Multiplayer game ended or not found (document deleted).");
                         resetGame(); // Reset game state
                         backToMainMenu(); // Go back to main menu
-                        showMultiplayerLobbyMessage("Das Multiplayer-Spiel wurde beendet.", true);
+                        showMultiplayerLobbyMessage(t().multiplayerLobbyTitle + "Das Multiplayer-Spiel wurde beendet.", true); // Übersetzt
                     }
                 }, (error) => {
                     console.error("Error listening to game session:", error);
-                    showMultiplayerLobbyMessage("Verbindungsproblem mit dem Spiel: " + error.message, true);
+                    showMultiplayerLobbyMessage(t().multiplayerLobbyTitle + "Verbindungsproblem mit dem Spiel: " + error.message, true); // Übersetzt
                     resetGame();
                     backToMainMenu();
                 });
@@ -1932,7 +1930,7 @@
                         await updateDoc(currentMultiplayerGameRef, updates);
                     } catch (error) {
                         console.error("Error updating game session:", error);
-                        showMultiplayerLobbyMessage("Fehler beim Aktualisieren des Spiels: " + error.message, true);
+                        showMultiplayerLobbyMessage(t().multiplayerLobbyTitle + "Fehler beim Aktualisieren des Spiels: " + error.message, true); // Übersetzt
                     }
                 }
             };
@@ -2020,7 +2018,6 @@
                         // Code sofort kopieren
                         try {
                             if (window.userFriendCode) {
-                                document.execCommand('copy'); // Fallback for clipboard API restrictions in iframe
                                 // Fallback: Create a temporary textarea to copy text if native Clipboard API doesn't work
                                 const tempTextArea = document.createElement('textarea');
                                 tempTextArea.value = window.userFriendCode;
@@ -2030,7 +2027,7 @@
                                 document.body.removeChild(tempTextArea);
 
                                 if (copyStatusMessage) {
-                                    copyStatusMessage.textContent = t().codeCopied;
+                                    copyStatusMessage.textContent = t().codeCopied; // Übersetzt
                                     copyStatusMessage.classList.remove('hidden');
                                     setTimeout(() => {
                                         copyStatusMessage.classList.add('hidden');
@@ -2040,7 +2037,7 @@
                         } catch (err) {
                             console.error('Kopieren fehlgeschlagen:', err);
                             if (copyStatusMessage) {
-                                copyStatusMessage.textContent = "Kopieren fehlgeschlagen!";
+                                copyStatusMessage.textContent = t().addFriendError + "Kopieren fehlgeschlagen!"; // Übersetzt (nutzt addFriendError als Präfix)
                                 copyStatusMessage.classList.remove('hidden');
                                 copyStatusMessage.classList.add('text-red-400');
                                 setTimeout(() => {
