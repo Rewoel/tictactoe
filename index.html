@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retro Tic Tac Toe</title>
+    <title>Tic Tac Toe</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -59,6 +59,11 @@
         .animate-overlay-fade-in {
           animation: overlay-fade-in 0.3s ease-out forwards;
         }
+
+        /* NEU: Blur-Effekt für Hintergrund bei Modal */
+        .backdrop-blur-lg-custom {
+            backdrop-filter: blur(8px); /* Adjust blur strength as needed */
+        }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center bg-gray-800 p-4 font-mono relative">
@@ -73,7 +78,7 @@
     </button>
 
     <!-- Profil-Anzeige (oben links) -->
-    <div id="profile-display" class="absolute top-4 left-4 p-3 bg-gray-700 rounded-lg shadow-md border border-gray-600 text-white z-30 hidden">
+    <div id="profile-display" class="absolute top-4 left-4 p-3 bg-gray-700 rounded-lg shadow-md border border-gray-600 text-white z-30 hidden cursor-pointer">
         <div class="text-lg font-bold" id="username-in-profile">Gast</div>
         <div class="text-sm text-gray-300" id="rank-name-in-profile">Bronze</div>
         <div class="w-full bg-gray-600 rounded-full h-2 mt-1">
@@ -82,6 +87,33 @@
         <div class="text-xs text-gray-400 text-right mt-1" id="rank-points-in-profile">0/100 Pkt.</div>
         <!-- NEU: Freunde-Code im Profil -->
         <div class="text-xs text-gray-400 mt-2" id="profile-friend-code-display">Code: LÄDT...</div>
+    </div>
+
+    <!-- NEU: Profil-Übersichts-Modal -->
+    <div id="profile-overview-modal" class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 backdrop-blur-lg-custom hidden">
+        <div class="bg-gray-700 p-8 rounded-lg shadow-2xl border-4 border-yellow-400 max-w-sm w-full text-center relative">
+            <button id="close-profile-modal-btn" class="absolute top-3 right-3 text-gray-400 hover:text-white text-3xl font-bold">&times;</button>
+            <h2 class="text-3xl font-extrabold text-white mb-6">Dein Profil</h2>
+            
+            <div class="mb-4">
+                <p class="text-gray-300 text-lg">Name:</p>
+                <p id="modal-username" class="text-yellow-300 text-2xl font-bold">LÄDT...</p>
+            </div>
+
+            <div class="mb-4">
+                <p class="text-gray-300 text-lg">Rang:</p>
+                <p id="modal-rank-name" class="text-green-400 text-xl font-semibold">LÄDT...</p>
+                <div class="w-full bg-gray-600 rounded-full h-3 mt-2">
+                    <div id="modal-rank-progress-bar-fill" class="bg-yellow-400 h-3 rounded-full transition-all duration-300 ease-out" style="width: 0%;"></div>
+                </div>
+                <p id="modal-rank-points" class="text-gray-400 text-sm mt-1">LÄDT...</p>
+            </div>
+
+            <div class="mb-6">
+                <p class="text-gray-300 text-lg">Freunde-Code:</p>
+                <p id="modal-friend-code" class="text-purple-300 text-2xl font-bold break-all">LÄDT...</p>
+            </div>
+        </div>
     </div>
 
 
@@ -137,8 +169,6 @@
     <!-- Multiplayer Lobby Bildschirm (jetzt "Social Hub") -->
     <div id="multiplayer-lobby-screen" class="flex flex-col items-center justify-center p-8 bg-gray-700 rounded-lg shadow-lg hidden">
         <h1 class="text-4xl sm:text-5xl font-extrabold text-white mb-8 text-center" id="multiplayer-lobby-title">Multiplayer Lobby</h1>
-        <p class="text-center text-white mb-4" id="your-code-text">Dein Freunde-Code:</p>
-        <div class="text-3xl font-bold text-yellow-300 mb-6 p-3 bg-gray-800 rounded-md w-full max-w-xs text-center" id="your-friend-code">LÄDT...</div>
         
         <!-- Bereich: Freund hinzufügen -->
         <div class="w-full max-w-xs mb-6 p-4 bg-gray-600 rounded-lg shadow-inner">
@@ -160,15 +190,12 @@
             <p id="friends-list-message" class="text-center text-red-300 mt-2 text-sm hidden"></p>
         </div>
 
-        <!-- Bereich: Spiel erstellen/beitreten (bestehend) -->
-        <input type="text" id="friend-code-input" placeholder="Freunde-Code eingeben" class="w-full max-w-xs p-3 mb-4 rounded-lg bg-gray-600 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500">
+        <!-- Bereich: Spiel beitreten -->
+        <input type="text" id="friend-code-input" placeholder="Spiel-Code eingeben" class="w-full max-w-xs p-3 mb-4 rounded-lg bg-gray-600 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500">
         <button id="join-friend-game-btn" class="w-full max-w-xs p-4 mb-4 bg-purple-500 hover:bg-purple-600 text-white text-xl font-bold rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 border-b-4 border-purple-700 active:border-b-0 active:translate-y-1">
             Spiel beitreten
         </button>
-        <div class="text-white mb-6" id="or-create-game-text">- ODER -</div>
-        <button id="create-multiplayer-game-btn" class="w-full max-w-xs p-4 mb-6 bg-green-500 hover:bg-green-600 text-white text-xl font-bold rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 border-b-4 border-green-700 active:border-b-0 active:translate-y-1">
-            Neues Multiplayer-Spiel starten
-        </button>
+        <!-- Der "Neues Multiplayer-Spiel starten"-Button wurde hier entfernt -->
         <p id="multiplayer-lobby-message" class="text-center text-red-300 mt-4 text-sm hidden"></p>
         <button id="back-from-lobby-btn" class="px-6 py-3 bg-gray-600 hover:bg-gray-500 text-white font-bold rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 border-b-4 border-gray-800 active:border-b-0 active:translate-y-1">
             Zurück zum Menü
@@ -311,7 +338,7 @@
                 friendCodeInputPlaceholder: "Freunde-Code eingeben", // Neu
                 joinGameBtn: "Spiel beitreten", // Neu
                 orCreateGameText: "- ODER -", // Neu
-                createMultiplayerGameBtn: "Neues Multiplayer-Spiel starten", // Neu
+                createMultiplayerGameBtn: "Neues Multiplayer-Spiel starten", // Neu (Jetzt entfernt)
                 lobbyMessageWaiting: "Warte auf Spieler O...", // Neu
                 lobbyMessageJoined: "Spiel beigetreten. Warte auf Start...", // Neu
                 lobbyMessageError: "Fehler in der Lobby: ", // Neu
@@ -373,7 +400,7 @@
                 friendCodeInputPlaceholder: "Enter Friend Code", // New
                 joinGameBtn: "Join Game", // New
                 orCreateGameText: "- OR -", // New
-                createMultiplayerGameBtn: "Start New Multiplayer Game", // New
+                createMultiplayerGameBtn: "Start New Multiplayer Game", // New (Now removed)
                 lobbyMessageWaiting: "Waiting for Player O...", // New
                 lobbyMessageJoined: "Game joined. Waiting for start...", // New
                 lobbyMessageError: "Lobby Error: ", // New
@@ -422,8 +449,10 @@
             usernameScreenDiv, usernameInput, saveUsernameBtn, usernameMessageDisplay,
             authTitleDisplay, usernameTitleDisplay, usernamePromptDisplay, logoutBtn,
             profileDisplay, usernameInProfile, rankNameInProfile, rankProgressBarFill, rankPointsInProfile, profileFriendCodeDisplay, // NEU
-            multiplayerLobbyScreen, multiplayerLobbyTitle, yourCodeText, yourFriendCodeDisplay, friendCodeInput, joinFriendGameBtn, orCreateGameText, createMultiplayerGameBtn, multiplayerLobbyMessage, backFromLobbyBtn,
-            friendCodeToAddInput, addFriendBtn, addFriendMessage, friendsListContainer, noFriendsMessage, friendsListMessage; // NEU Freundschaftssystem
+            multiplayerLobbyScreen, multiplayerLobbyTitle, yourCodeText, yourFriendCodeDisplay, friendCodeInput, joinFriendGameBtn, orCreateGameText, multiplayerLobbyMessage, backFromLobbyBtn, // createMultiplayerGameBtn entfernt
+            friendCodeToAddInput, addFriendBtn, addFriendMessage, friendsListContainer, noFriendsMessage, friendsListMessage, // NEU Freundschaftssystem
+            profileOverviewModal, closeProfileModalBtn, modalUsername, modalRankName, modalRankProgressBarFill, modalRankPoints, modalFriendCode; // NEU Profil-Modal Elemente
+
 
         // --- Utility Functions ---
         // Get current translation object
@@ -493,7 +522,7 @@
             // Auth Screen
             if (authTitleDisplay) authTitleDisplay.textContent = t().authTitle;
             if (emailInput) emailInput.placeholder = t().emailPlaceholder;
-            if (passwordInput) passwordInput.placeholder = t().passwordPlaceholder;
+            if (passwordInput) passwordInput.placeholder = t().passwordPlaceholder; // Corrected placeholder
             if (loginBtn) loginBtn.textContent = t().loginBtn;
             if (signupBtn) signupBtn.textContent = t().signupBtn;
             if (authOrText) authOrText.textContent = t().or;
@@ -509,17 +538,13 @@
             if (multiplayerLobbyTitle) multiplayerLobbyTitle.textContent = t().multiplayerLobbyTitle;
             if (yourCodeText) yourCodeText.textContent = t().yourCodeText;
             if (yourFriendCodeDisplay) yourFriendCodeDisplay.textContent = window.userFriendCode || 'LÄDT...';
-            if (friendCodeInput) friendCodeInput.placeholder = t().friendCodeInputPlaceholder;
+            if (friendCodeInput) friendCodeInput.placeholder = t().friendCodeInputPlaceholder; // Jetzt "Spiel-Code eingeben"
             if (joinFriendGameBtn) joinFriendGameBtn.textContent = t().joinGameBtn;
             if (orCreateGameText) orCreateGameText.textContent = t().orCreateGameText;
-            if (createMultiplayerGameBtn) createMultiplayerGameBtn.textContent = t().createMultiplayerGameBtn;
             if (backFromLobbyBtn) backFromLobbyBtn.textContent = t().backToMenu;
-            if (friendCodeToAddInput) friendCodeToAddInput.placeholder = t().friendCodeInputPlaceholder; // NEU
-            if (addFriendBtn) addFriendBtn.textContent = t().addFriendBtn; // NEU
-            if (noFriendsMessage) noFriendsMessage.textContent = t().noFriendsMessage; // NEU
-
-
-            updateStatusDisplay(); // Also update status display with new language
+            if (friendCodeToAddInput) friendCodeToAddInput.placeholder = t().friendCodeInputPlaceholder;
+            if (addFriendBtn) addFriendBtn.textContent = t().addFriendBtn;
+            if (noFriendsMessage) noFriendsMessage.textContent = t().noFriendsMessage;
         };
 
         const updateStatusDisplay = () => {
@@ -578,8 +603,36 @@
                 if (profileFriendCodeDisplay) {
                     profileFriendCodeDisplay.textContent = `Code: ${window.userFriendCode || 'N/A'}`;
                 }
+                profileDisplay.classList.remove('hidden'); // Ensure profile display is shown if ready
+            } else if (profileDisplay) {
+                profileDisplay.classList.add('hidden'); // Hide if not ready
+            }
+
+            // NEU: Update des Profil-Modals, falls sichtbar
+            if (profileOverviewModal && !profileOverviewModal.classList.contains('hidden')) {
+                updateProfileModalContent();
             }
         };
+
+        // NEU: Funktion zum Aktualisieren des Inhalts des Profil-Modals
+        const updateProfileModalContent = () => {
+            if (modalUsername) modalUsername.textContent = window.userDisplayName || 'Gast';
+            if (modalRankName) modalRankName.textContent = window.userRankName;
+            if (modalFriendCode) modalFriendCode.textContent = window.userFriendCode || 'N/A';
+            if (modalRankPoints) {
+                const progress = getRankProgressDetails(window.userRankPoints);
+                if (progress.pointsToNextRank === 0) {
+                    modalRankPoints.textContent = `${window.userRankPoints} ${t().points}`;
+                } else {
+                    modalRankPoints.textContent = `${progress.pointsInCurrentRank}/${progress.pointsToNextRank} ${t().points}`;
+                }
+            }
+            if (modalRankProgressBarFill) {
+                const progress = getRankProgressDetails(window.userRankPoints);
+                modalRankProgressBarFill.style.width = `${progress.progressPercentage}%`;
+            }
+        };
+
 
         const showAuthMessage = (message, isError = true) => {
             if (authMessageDisplay) {
@@ -665,6 +718,7 @@
             authScreenDiv.classList.add('hidden');
             usernameScreenDiv.classList.add('hidden');
             multiplayerLobbyScreen.classList.add('hidden'); // New screen
+            profileOverviewModal.classList.add('hidden'); // NEU: Profil-Modal immer verstecken
             if (profileDisplay) profileDisplay.classList.add('hidden'); // Hide profile by default
 
             // NEU: Abmeldung von Firebase-Listen bei Bildschirmwechsel
@@ -690,11 +744,11 @@
                     break;
                 case 'mainMenu':
                     mainMenuDiv.classList.remove('hidden');
-                    if (profileDisplay && window.isFirebaseReady && window.userDisplayName) profileDisplay.classList.remove('hidden');
+                    if (window.isFirebaseReady && window.userDisplayName) profileDisplay.classList.remove('hidden');
                     break;
                 case 'multiplayerLobby': // New case for social hub
                     multiplayerLobbyScreen.classList.remove('hidden');
-                    if (profileDisplay && window.isFirebaseReady && window.userDisplayName) profileDisplay.classList.remove('hidden');
+                    if (window.isFirebaseReady && window.userDisplayName) profileDisplay.classList.remove('hidden');
                     if (window.isFirebaseReady && window.currentUserId) {
                         // Starte Listen für Freundesliste und präsenter Status
                         subscribeToFriendsList();
@@ -703,7 +757,7 @@
                     break;
                 case 'game':
                     gameAreaDiv.classList.remove('hidden');
-                    if (profileDisplay && window.isFirebaseReady && window.userDisplayName) profileDisplay.classList.remove('hidden');
+                    if (window.isFirebaseReady && window.userDisplayName) profileDisplay.classList.remove('hidden');
                     break;
             }
             currentScreen = screenName;
@@ -1403,7 +1457,7 @@
             friendCodeInput = document.getElementById('friend-code-input');
             joinFriendGameBtn = document.getElementById('join-friend-game-btn');
             orCreateGameText = document.getElementById('or-create-game-text');
-            createMultiplayerGameBtn = document.getElementById('create-multiplayer-game-btn');
+            // createMultiplayerGameBtn = document.getElementById('create-multiplayer-game-btn'); // ENTFERNT
             multiplayerLobbyMessage = document.getElementById('multiplayer-lobby-message');
             backFromLobbyBtn = document.getElementById('back-from-lobby-btn');
             friendCodeToAddInput = document.getElementById('friend-code-to-add-input'); // NEU
@@ -1412,6 +1466,15 @@
             friendsListContainer = document.getElementById('friends-list-container'); // NEU
             noFriendsMessage = document.getElementById('no-friends-message'); // NEU
             friendsListMessage = document.getElementById('friends-list-message'); // NEU
+
+            // NEU: Profil-Modal Elemente
+            profileOverviewModal = document.getElementById('profile-overview-modal');
+            closeProfileModalBtn = document.getElementById('close-profile-modal-btn');
+            modalUsername = document.getElementById('modal-username');
+            modalRankName = document.getElementById('modal-rank-name');
+            modalRankProgressBarFill = document.getElementById('modal-rank-progress-bar-fill');
+            modalRankPoints = document.getElementById('modal-rank-points');
+            modalFriendCode = document.getElementById('modal-friend-code');
 
 
             canvas = document.getElementById('particles-canvas');
@@ -1724,55 +1787,8 @@
 
 
             // --- Multiplayer Logic (defined inside DOMContentLoaded) ---
-            const createMultiplayerGame = async () => {
-                hideMultiplayerLobbyMessage();
-                if (!window.userFriendCode || !window.userDisplayName) {
-                    showMultiplayerLobbyMessage("Dein Freundes-Code oder Name ist nicht verfügbar. Bitte melde dich erneut an.", true);
-                    return;
-                }
-
-                try {
-                    // Erstelle eine eindeutige ID für das Spiel (nicht den Freundescode)
-                    const gameId = `${window.currentUserId}-public-${Date.now()}`;
-                    const gameRef = doc(window.firebaseDb, `artifacts/${getAppId()}/public/games`, gameId);
-                    const gameDoc = await getDoc(gameRef);
-
-                    // Diese Überprüfung ist für den neuen gameId-Ansatz weniger relevant, aber schadet nicht
-                    if (gameDoc.exists()) {
-                         // Dies sollte bei einer zufälligen ID unwahrscheinlich sein, aber zur Sicherheit
-                        console.warn("Game with generated ID already exists, retrying or handling collision.");
-                        showMultiplayerLobbyMessage("Fehler: Spiel konnte nicht erstellt werden. Bitte versuchen Sie es erneut.", true);
-                        return;
-                    }
-
-                    const initialGameState = {
-                        players: {
-                            X: {
-                                uid: window.currentUserId,
-                                displayName: window.userDisplayName,
-                                friendCode: window.userFriendCode
-                            },
-                            O: null // Player O is waiting
-                        },
-                        board: Array(9).fill(null),
-                        currentPlayer: 'X',
-                        winner: null,
-                        winningLine: null,
-                        status: 'waiting', // 'waiting', 'playing', 'finished'
-                        createdAt: Date.now()
-                    };
-
-                    await setDoc(gameRef, initialGameState);
-                    currentMultiplayerGameRef = gameRef;
-                    isPlayerX = true;
-                    showMultiplayerLobbyMessage(t().gameCreatedSuccess + ` Code: ${gameId}`, false); // Zeige die GameId an
-                    subscribeToGameSession(gameId);
-
-                } catch (error) {
-                    console.error("Error creating multiplayer game:", error);
-                    showMultiplayerLobbyMessage("Fehler beim Erstellen des Spiels: " + error.message, true);
-                }
-            };
+            // createMultiplayerGame wurde entfernt und seine Funktionalität (öffentliches Spiel erstellen) ist nicht mehr direkt über einen Button erreichbar.
+            // Die Spiele werden nun hauptsächlich über Einladungen gestartet.
 
             const joinMultiplayerGame = async () => {
                 hideMultiplayerLobbyMessage();
@@ -1949,12 +1965,27 @@
             if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
 
             // Multiplayer Lobby Event Listeners
-            if (createMultiplayerGameBtn) createMultiplayerGameBtn.addEventListener('click', createMultiplayerGame);
+            // createMultiplayerGameBtn.addEventListener wurde entfernt
             if (joinFriendGameBtn) joinFriendGameBtn.addEventListener('click', joinMultiplayerGame);
             if (backFromLobbyBtn) backFromLobbyBtn.addEventListener('click', backToMainMenu);
             
             // NEU: Freundschaftssystem Event Listener
             if (addFriendBtn) addFriendBtn.addEventListener('click', addFriendByCode);
+
+            // NEU: Event Listener für Profil-Anzeige und Modal
+            if (profileDisplay) {
+                profileDisplay.addEventListener('click', () => {
+                    if (window.isFirebaseReady && window.userDisplayName) {
+                        updateProfileModalContent(); // Aktualisiere den Inhalt vor dem Anzeigen
+                        profileOverviewModal.classList.remove('hidden');
+                    }
+                });
+            }
+            if (closeProfileModalBtn) {
+                closeProfileModalBtn.addEventListener('click', () => {
+                    profileOverviewModal.classList.add('hidden');
+                });
+            }
 
 
             // --- Ende der Event Listener ---
